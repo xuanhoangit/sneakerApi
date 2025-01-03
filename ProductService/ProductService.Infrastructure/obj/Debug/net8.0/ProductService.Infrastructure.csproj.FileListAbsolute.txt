@@ -1,0 +1,15 @@
+D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Infrastructure\bin\Debug\net8.0\ProductService.Infrastructure.deps.json
+D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Infrastructure\bin\Debug\net8.0\ProductService.Infrastructure.dll
+D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Infrastructure\bin\Debug\net8.0\ProductService.Infrastructure.pdb
+D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Infrastructure\bin\Debug\net8.0\ProductService.Core.dll
+D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Infrastructure\bin\Debug\net8.0\ProductService.Core.pdb
+D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Infrastructure\obj\Debug\net8.0\ProductService.Infrastructure.csproj.AssemblyReference.cache
+D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Infrastructure\obj\Debug\net8.0\ProductService.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Infrastructure\obj\Debug\net8.0\ProductService.Infrastructure.AssemblyInfoInputs.cache
+D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Infrastructure\obj\Debug\net8.0\ProductService.Infrastructure.AssemblyInfo.cs
+D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Infrastructure\obj\Debug\net8.0\ProductService.Infrastructure.csproj.CoreCompileInputs.cache
+D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Infrastructure\obj\Debug\net8.0\ProductS.4D387919.Up2Date
+D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Infrastructure\obj\Debug\net8.0\ProductService.Infrastructure.dll
+D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Infrastructure\obj\Debug\net8.0\refint\ProductService.Infrastructure.dll
+D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Infrastructure\obj\Debug\net8.0\ProductService.Infrastructure.pdb
+D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Infrastructure\obj\Debug\net8.0\ref\ProductService.Infrastructure.dll

@@ -1,0 +1,19 @@
+{
+  "Version": 1,
+  "Hash": "alPjJNq0ZM1s5hsmBbv9bOh8cGz1BI8Y/GbNgBM3WHg=",
+  "Source": "ProductService.Api",
+  "BasePath": "_content/ProductService.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "ProductService.Api\\wwwroot",
+      "Source": "ProductService.Api",
+      "ContentRoot": "D:\\Download\\API\\SneakerApi\\sneakerApi\\ProductService\\ProductService.Api\\wwwroot\\",
+      "BasePath": "_content/ProductService.Api",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": []
+}
