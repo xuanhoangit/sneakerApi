@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace ProductService.Core.Models
+namespace UserService.Core.Models
 {
     public class AnEntity
     {   

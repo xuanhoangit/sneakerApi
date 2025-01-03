@@ -1,7 +1,7 @@
 using ProductService.Core.Models;
 
 namespace ProductService.Core.Interfaces;
-public interface IProduct1Repository : IRepository<AnEntity>
+public interface IProductRepository : IRepository<Product>
 {
         // Task<bool> GetAll ();
 }

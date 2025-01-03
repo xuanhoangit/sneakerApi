@@ -13,3 +13,4 @@ D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Infrastructu
 D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Infrastructure\obj\Debug\net8.0\refint\ProductService.Infrastructure.dll
 D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Infrastructure\obj\Debug\net8.0\ProductService.Infrastructure.pdb
 D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Infrastructure\obj\Debug\net8.0\ref\ProductService.Infrastructure.dll
+D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Infrastructure\obj\Debug\net8.0\ProductService.Infrastructure.sourcelink.json

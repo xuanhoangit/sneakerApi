@@ -172,3 +172,4 @@ D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Api\obj\Debu
 D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Api\obj\Debug\net8.0\ProductService.Api.pdb
 D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Api\obj\Debug\net8.0\ProductService.Api.genruntimeconfig.cache
 D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Api\obj\Debug\net8.0\ref\ProductService.Api.dll
+D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Api\obj\Debug\net8.0\ProductService.Api.sourcelink.json

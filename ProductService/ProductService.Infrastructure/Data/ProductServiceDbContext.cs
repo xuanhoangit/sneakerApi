@@ -9,6 +9,6 @@ namespace ProductService.Infrastructure.Data
         {
             
         }
-        public DbSet<AnEntity>? AnEntities {get;set;}
+        public DbSet<Product>? AnEntities {get;set;}
     }
 }

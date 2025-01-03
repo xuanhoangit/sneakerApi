@@ -1,0 +1,27 @@
+
+-----KHỞI TẠO--------
+tạo folder UserService
+dotnet new sln -n UserService
+dotnet new classlib -n UserService.Core
+dotnet new classlib -n UserService.Infrastructure
+dotnet new webapi -n UserService.Api
+dotnet sln UserService.sln add UserService.Api/UserService.Api.csproj
+dotnet sln UserService.sln add UserService.Core/UserService.Core.csproj
+dotnet sln UserService.sln add UserService.Infrastructure/UserService.Infrastructure.csproj
+
+
+-----THAM CHIẾU----------
+dotnet add UserService.Infrastructure/UserService.Infrastructure.csproj reference UserService.Core/UserService.Core.csproj
+dotnet add UserService.Api/UserService.Api.csproj reference UserService.Core/UserService.Core.csproj
+dotnet add UserService.Api/UserService.Api.csproj reference UserService.Infrastructure/UserService.Infrastructure.csproj
+
+
+API,
+dotnet add package Microsoft.EntityFrameworkCore.Design
+dotnet add package Microsoft.EntityFrameworkCore.Tools
+
+CORE, INFRAS
+dotnet add package Microsoft.EntityFrameworkCore
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+dotnet add package Microsoft.EntityFrameworkCore.Tools
+

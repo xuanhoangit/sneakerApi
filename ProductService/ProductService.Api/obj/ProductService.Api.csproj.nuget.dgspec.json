@@ -26,9 +26,6 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\Download\\API\\SneakerApi\\sneakerApi\\ProductService\\ProductService.Core\\ProductService.Core.csproj": {
-                "projectPath": "D:\\Download\\API\\SneakerApi\\sneakerApi\\ProductService\\ProductService.Core\\ProductService.Core.csproj"
-              },
               "D:\\Download\\API\\SneakerApi\\sneakerApi\\ProductService\\ProductService.Infrastructure\\ProductService.Infrastructure.csproj": {
                 "projectPath": "D:\\Download\\API\\SneakerApi\\sneakerApi\\ProductService\\ProductService.Infrastructure\\ProductService.Infrastructure.csproj"
               }
@@ -61,6 +58,10 @@
               "version": "[9.0.0, )"
             },
             "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
               "target": "Package",
               "version": "[9.0.0, )"
             },

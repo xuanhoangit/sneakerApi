@@ -8,10 +8,10 @@ public class UnitOfWork : IUnitOfWork
     public UnitOfWork(ProductServiceDbContext db)
     {
         _db=db;
-        Product1 = new Product1Repository(_db);
+        Product = new ProductRepository(_db);
     }
 
-    public IProduct1Repository Product1 {get;}
+    public IProductRepository Product {get;}
 
 
     public void Save()

@@ -3,9 +3,9 @@ using ProductService.Core.Models;
 using ProductService.Infrastructure.Data;
 
 namespace ProductService.Infrastructure.Repositories;
-public class Product1Repository :Repository<AnEntity> ,IProduct1Repository
+public class ProductRepository :Repository<Product> ,IProductRepository
 {
-    public Product1Repository(ProductServiceDbContext db):base(db)
+    public ProductRepository(ProductServiceDbContext db):base(db)
     {
         
     }

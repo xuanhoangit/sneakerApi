@@ -9,3 +9,4 @@ D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Core\obj\Deb
 D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Core\obj\Debug\net8.0\refint\ProductService.Core.dll
 D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Core\obj\Debug\net8.0\ProductService.Core.pdb
 D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Core\obj\Debug\net8.0\ref\ProductService.Core.dll
+D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Core\obj\Debug\net8.0\ProductService.Core.sourcelink.json

@@ -2,7 +2,7 @@
 namespace ProductService.Core.Interfaces;
 public interface IUnitOfWork
 {
-    IProduct1Repository Product1 { get; }
+    IProductRepository Product { get; }
 
     void Save();
 }
