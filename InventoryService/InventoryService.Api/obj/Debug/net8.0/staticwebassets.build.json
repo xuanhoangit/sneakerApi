@@ -1,0 +1,19 @@
+{
+  "Version": 1,
+  "Hash": "epBRcLHywqs9ZxyFfEUilFiuzjG5uF9Cju8HReaDFzw=",
+  "Source": "InventoryService.Api",
+  "BasePath": "_content/InventoryService.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "InventoryService.Api\\wwwroot",
+      "Source": "InventoryService.Api",
+      "ContentRoot": "D:\\Download\\API\\SneakerApi\\sneakerApi\\InventoryService\\InventoryService.Api\\wwwroot\\",
+      "BasePath": "_content/InventoryService.Api",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": []
+}

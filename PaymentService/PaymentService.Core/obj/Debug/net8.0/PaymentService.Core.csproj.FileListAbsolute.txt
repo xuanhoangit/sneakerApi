@@ -1,0 +1,15 @@
+D:\Download\API\SneakerApi\sneakerApi\PaymentService\PaymentService.Core\bin\Debug\net8.0\PaymentService.Core.deps.json
+D:\Download\API\SneakerApi\sneakerApi\PaymentService\PaymentService.Core\bin\Debug\net8.0\PaymentService.Core.runtimeconfig.json
+D:\Download\API\SneakerApi\sneakerApi\PaymentService\PaymentService.Core\bin\Debug\net8.0\PaymentService.Core.dll
+D:\Download\API\SneakerApi\sneakerApi\PaymentService\PaymentService.Core\bin\Debug\net8.0\PaymentService.Core.pdb
+D:\Download\API\SneakerApi\sneakerApi\PaymentService\PaymentService.Core\obj\Debug\net8.0\PaymentService.Core.csproj.AssemblyReference.cache
+D:\Download\API\SneakerApi\sneakerApi\PaymentService\PaymentService.Core\obj\Debug\net8.0\PaymentService.Core.GeneratedMSBuildEditorConfig.editorconfig
+D:\Download\API\SneakerApi\sneakerApi\PaymentService\PaymentService.Core\obj\Debug\net8.0\PaymentService.Core.AssemblyInfoInputs.cache
+D:\Download\API\SneakerApi\sneakerApi\PaymentService\PaymentService.Core\obj\Debug\net8.0\PaymentService.Core.AssemblyInfo.cs
+D:\Download\API\SneakerApi\sneakerApi\PaymentService\PaymentService.Core\obj\Debug\net8.0\PaymentService.Core.csproj.CoreCompileInputs.cache
+D:\Download\API\SneakerApi\sneakerApi\PaymentService\PaymentService.Core\obj\Debug\net8.0\PaymentService.Core.sourcelink.json
+D:\Download\API\SneakerApi\sneakerApi\PaymentService\PaymentService.Core\obj\Debug\net8.0\PaymentService.Core.dll
+D:\Download\API\SneakerApi\sneakerApi\PaymentService\PaymentService.Core\obj\Debug\net8.0\refint\PaymentService.Core.dll
+D:\Download\API\SneakerApi\sneakerApi\PaymentService\PaymentService.Core\obj\Debug\net8.0\PaymentService.Core.pdb
+D:\Download\API\SneakerApi\sneakerApi\PaymentService\PaymentService.Core\obj\Debug\net8.0\PaymentService.Core.genruntimeconfig.cache
+D:\Download\API\SneakerApi\sneakerApi\PaymentService\PaymentService.Core\obj\Debug\net8.0\ref\PaymentService.Core.dll

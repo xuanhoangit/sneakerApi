@@ -1,19 +1,19 @@
 
 -----KHỞI TẠO--------
-tạo folder UserService
-dotnet new sln -n UserService
-dotnet new classlib -n UserService.Core
-dotnet new classlib -n UserService.Infrastructure
-dotnet new webapi -n UserService.Api
-dotnet sln UserService.sln add UserService.Api/UserService.Api.csproj
-dotnet sln UserService.sln add UserService.Core/UserService.Core.csproj
-dotnet sln UserService.sln add UserService.Infrastructure/UserService.Infrastructure.csproj
+tạo folder PaymentService
+dotnet new sln -n PaymentService
+dotnet new classlib -n PaymentService.Core
+dotnet new classlib -n PaymentService.Infrastructure
+dotnet new webapi -n PaymentService.Api
+dotnet sln PaymentService.sln add PaymentService.Api/PaymentService.Api.csproj
+dotnet sln PaymentService.sln add PaymentService.Core/PaymentService.Core.csproj
+dotnet sln PaymentService.sln add PaymentService.Infrastructure/PaymentService.Infrastructure.csproj
 
 
 -----THAM CHIẾU----------
-dotnet add UserService.Infrastructure/UserService.Infrastructure.csproj reference UserService.Core/UserService.Core.csproj
-dotnet add UserService.Api/UserService.Api.csproj reference UserService.Core/UserService.Core.csproj
-dotnet add UserService.Api/UserService.Api.csproj reference UserService.Infrastructure/UserService.Infrastructure.csproj
+dotnet add PaymentService.Infrastructure/PaymentService.Infrastructure.csproj reference PaymentService.Core/PaymentService.Core.csproj
+dotnet add PaymentService.Api/PaymentService.Api.csproj reference PaymentService.Core/PaymentService.Core.csproj
+dotnet add PaymentService.Api/PaymentService.Api.csproj reference PaymentService.Infrastructure/PaymentService.Infrastructure.csproj
 
 
 API,
