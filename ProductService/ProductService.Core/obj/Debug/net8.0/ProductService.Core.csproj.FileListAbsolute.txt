@@ -10,3 +10,6 @@ D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Core\obj\Deb
 D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Core\obj\Debug\net8.0\ProductService.Core.pdb
 D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Core\obj\Debug\net8.0\ref\ProductService.Core.dll
 D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Core\obj\Debug\net8.0\ProductService.Core.sourcelink.json
+D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Core\bin\Debug\net8.0\ProductService.Core.runtimeconfig.json
+D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Core\obj\Debug\net8.0\ProductService.Core.csproj.AssemblyReference.cache
+D:\Download\API\SneakerApi\sneakerApi\ProductService\ProductService.Core\obj\Debug\net8.0\ProductService.Core.genruntimeconfig.cache

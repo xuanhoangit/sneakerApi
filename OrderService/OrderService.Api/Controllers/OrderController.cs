@@ -3,7 +3,9 @@ using OrderService.Core.Interfaces;
 
 
 namespace OrderService.Api.Controllers
-{
+{   
+    [ApiController]
+    [Route("api/[Controller]")]
     public class OrderController : BaseController
     {
         private readonly IUnitOfWork uow;
@@ -12,9 +14,10 @@ namespace OrderService.Api.Controllers
         {
             this.uow = uow;
         }
-        public IActionResult Get(){
+        [HttpGet("getall")]
+        public IActionResult GetAll(){
             
-            return Ok(uow.Order.GetAll());
+            return Ok("HHAHHAHAH");
         }
     }
 }
