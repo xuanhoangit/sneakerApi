@@ -1,0 +1,14 @@
+D:\Download\SneakerAPI\SneakerAPI.Core\bin\Debug\net8.0\SneakerAPI.Core.deps.json
+D:\Download\SneakerAPI\SneakerAPI.Core\bin\Debug\net8.0\SneakerAPI.Core.runtimeconfig.json
+D:\Download\SneakerAPI\SneakerAPI.Core\bin\Debug\net8.0\SneakerAPI.Core.dll
+D:\Download\SneakerAPI\SneakerAPI.Core\bin\Debug\net8.0\SneakerAPI.Core.pdb
+D:\Download\SneakerAPI\SneakerAPI.Core\obj\Debug\net8.0\SneakerAPI.Core.csproj.AssemblyReference.cache
+D:\Download\SneakerAPI\SneakerAPI.Core\obj\Debug\net8.0\SneakerAPI.Core.GeneratedMSBuildEditorConfig.editorconfig
+D:\Download\SneakerAPI\SneakerAPI.Core\obj\Debug\net8.0\SneakerAPI.Core.AssemblyInfoInputs.cache
+D:\Download\SneakerAPI\SneakerAPI.Core\obj\Debug\net8.0\SneakerAPI.Core.AssemblyInfo.cs
+D:\Download\SneakerAPI\SneakerAPI.Core\obj\Debug\net8.0\SneakerAPI.Core.csproj.CoreCompileInputs.cache
+D:\Download\SneakerAPI\SneakerAPI.Core\obj\Debug\net8.0\SneakerAPI.Core.dll
+D:\Download\SneakerAPI\SneakerAPI.Core\obj\Debug\net8.0\refint\SneakerAPI.Core.dll
+D:\Download\SneakerAPI\SneakerAPI.Core\obj\Debug\net8.0\SneakerAPI.Core.pdb
+D:\Download\SneakerAPI\SneakerAPI.Core\obj\Debug\net8.0\SneakerAPI.Core.genruntimeconfig.cache
+D:\Download\SneakerAPI\SneakerAPI.Core\obj\Debug\net8.0\ref\SneakerAPI.Core.dll
