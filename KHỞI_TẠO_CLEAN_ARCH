@@ -1,19 +1,19 @@
 
 -----KHỞI TẠO--------
-tạo folder PaymentService
-dotnet new sln -n PaymentService
-dotnet new classlib -n PaymentService.Core
-dotnet new classlib -n PaymentService.Infrastructure
-dotnet new webapi -n PaymentService.Api
-dotnet sln PaymentService.sln add PaymentService.Api/PaymentService.Api.csproj
-dotnet sln PaymentService.sln add PaymentService.Core/PaymentService.Core.csproj
-dotnet sln PaymentService.sln add PaymentService.Infrastructure/PaymentService.Infrastructure.csproj
+tạo folder SneakerAPI
+dotnet new sln -n SneakerAPI
+dotnet new classlib -n SneakerAPI.Core
+dotnet new classlib -n SneakerAPI.Infrastructure
+dotnet new webapi -n SneakerAPI.Api
+dotnet sln SneakerAPI.sln add SneakerAPI.Api/SneakerAPI.Api.csproj
+dotnet sln SneakerAPI.sln add SneakerAPI.Core/SneakerAPI.Core.csproj
+dotnet sln SneakerAPI.sln add SneakerAPI.Infrastructure/SneakerAPI.Infrastructure.csproj
 
 
 -----THAM CHIẾU----------
-dotnet add PaymentService.Infrastructure/PaymentService.Infrastructure.csproj reference PaymentService.Core/PaymentService.Core.csproj
-dotnet add PaymentService.Api/PaymentService.Api.csproj reference PaymentService.Core/PaymentService.Core.csproj
-dotnet add PaymentService.Api/PaymentService.Api.csproj reference PaymentService.Infrastructure/PaymentService.Infrastructure.csproj
+dotnet add SneakerAPI.Infrastructure/SneakerAPI.Infrastructure.csproj reference SneakerAPI.Core/SneakerAPI.Core.csproj
+dotnet add SneakerAPI.Api/SneakerAPI.Api.csproj reference SneakerAPI.Core/SneakerAPI.Core.csproj
+dotnet add SneakerAPI.Api/SneakerAPI.Api.csproj reference SneakerAPI.Infrastructure/SneakerAPI.Infrastructure.csproj
 
 
 API,
@@ -24,4 +24,6 @@ CORE, INFRAS
 dotnet add package Microsoft.EntityFrameworkCore
 dotnet add package Microsoft.EntityFrameworkCore.SqlServer
 dotnet add package Microsoft.EntityFrameworkCore.Tools
+
+
 
