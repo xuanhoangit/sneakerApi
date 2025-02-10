@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SneakerAPI.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using SneakerAPI.Infrastructure.Data;
 namespace SneakerAPI.Api.Migrations
 {
     [DbContext(typeof(SneakerAPIDbContext))]
-    partial class SneakerAPIDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250209152612_init-v1")]
+    partial class initv1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "i0pJETkH3Yk=",
+  "dgSpecHash": "g7M07Y82Rco=",
   "success": true,
-  "projectFilePath": "D:\\Download\\SneakerAPI\\SneakerAPI.Api\\SneakerAPI.Api.csproj",
+  "projectFilePath": "D:\\Download\\API\\SneakerApi\\sneakerApi\\SneakerAPI\\SneakerAPI.Api\\SneakerAPI.Api.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\WelCome To BVCN02\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\WelCome To BVCN02\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",
