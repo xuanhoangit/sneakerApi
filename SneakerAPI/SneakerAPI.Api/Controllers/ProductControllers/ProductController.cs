@@ -1,7 +1,8 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 // using SneakerAPI.Core.DTOs;
 using SneakerAPI.Core.Interfaces;
-
+using SneakerAPI.Core.Models.Filters;
 using SneakerAPI.Core.Models.ProductEntities;
 
 
@@ -9,6 +10,8 @@ namespace SneakerAPI.Api.Controllers
 {   
     [ApiController]
     [Route("api/[Controller]")]
+    [Authorize]
+    [Area("customer")]
     public class ProductController : BaseController
     {
         private readonly IUnitOfWork uow;
@@ -20,7 +23,10 @@ namespace SneakerAPI.Api.Controllers
         public IActionResult GetById(int id){
             return Ok(uow.Product.Get(id));
         }
-
+        [HttpGet("filter")]
+        public async Task<IActionResult> GetFilteredProducts([FromQuery]ProductFilter filter){
+            return Ok( await uow.ProductFilter.GetFilteredProductsAsync(filter));
+        }
         [HttpGet("searchproduct/{name}")] 
         public async Task<IActionResult> SearchProductByName(string name){
             //validate

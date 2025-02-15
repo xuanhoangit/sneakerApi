@@ -1,3 +1,4 @@
+using ProductService.Infrastructure.Repositories;
 using SneakerAPI.Core.Interfaces;
 using SneakerAPI.Core.Interfaces.OrderInterfaces;
 using SneakerAPI.Core.Interfaces.ProductInterfaces;
@@ -34,8 +35,9 @@ public class UnitOfWork : IUnitOfWork
         CustomerInfo = new CustomerInfoRepository(_db);
         StaffInfo = new StaffInfoRepository(_db);
         Address = new AddressRepository(_db);
+        ProductFilter = new ProductFilterRepository(_db);
     }
-
+    public IProductFilterRepository ProductFilter { get; }
     public IOrderRepository Order {get;}
 
     public IOrderDetailRepository OrderDetail {get;}
@@ -69,6 +71,8 @@ public class UnitOfWork : IUnitOfWork
     public IStaffInfoRepository StaffInfo {get;}
 
     public IAddressRepository Address {get;}
+
+
 
     // public IOrderRepository Order {get;}
 

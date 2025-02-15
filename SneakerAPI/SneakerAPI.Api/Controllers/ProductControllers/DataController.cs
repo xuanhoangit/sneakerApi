@@ -122,9 +122,9 @@ namespace SneakerAPI.Api.Controllers.ProductControllers
         }
         return productCategories;
     }
-}   
-    [Route("api/[controller]")]
-    [ApiController]
+// }   
+//     [Route("api/[controller]")]
+//     [ApiController]
     public class DataController : BaseController
     {
         private readonly IUnitOfWork uow;
@@ -157,5 +157,6 @@ namespace SneakerAPI.Api.Controllers.ProductControllers
             var seedproductcolorsize=uow.ProductColorSize.AddRange(DataGenerator.GetProductColorSizes(productColors, sizes));
             return Ok("Data seeded successfully");
         }
+    }
     }
 }

@@ -21,7 +21,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 builder.Services.AddDbContext<SneakerAPIDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SneakerAPIConnection"),b => b.MigrationsAssembly("SneakerAPI.Api")));
+    // options.UseSqlServer(builder.Configuration.GetConnectionString("SneakerAPIConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SneakerAPIConnection"),b=>b.MigrationsAssembly("SneakerAPI.Infrastructure")));
 
 builder.Services.AddTransient<IUnitOfWork,UnitOfWork>();
 var app = builder.Build();

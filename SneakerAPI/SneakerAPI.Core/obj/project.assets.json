@@ -4739,11 +4739,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Download\\SneakerAPI\\SneakerAPI.Core\\SneakerAPI.Core.csproj",
+      "projectUniqueName": "D:\\Download\\API\\SneakerApi\\sneakerApi\\SneakerAPI\\SneakerAPI.Core\\SneakerAPI.Core.csproj",
       "projectName": "SneakerAPI.Core",
-      "projectPath": "D:\\Download\\SneakerAPI\\SneakerAPI.Core\\SneakerAPI.Core.csproj",
+      "projectPath": "D:\\Download\\API\\SneakerApi\\sneakerApi\\SneakerAPI\\SneakerAPI.Core\\SneakerAPI.Core.csproj",
       "packagesPath": "C:\\Users\\WelCome To BVCN02\\.nuget\\packages\\",
-      "outputPath": "D:\\Download\\SneakerAPI\\SneakerAPI.Core\\obj\\",
+      "outputPath": "D:\\Download\\API\\SneakerApi\\sneakerApi\\SneakerAPI\\SneakerAPI.Core\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\WelCome To BVCN02\\AppData\\Roaming\\NuGet\\NuGet.Config"
