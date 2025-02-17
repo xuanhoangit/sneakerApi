@@ -12,6 +12,14 @@ namespace SneakerAPI.AdminApi.Controllers.ProductControllers
         {
             _uow = uow;
         }
+        // public IActionResult GetProductsByCategories(int cateId){
+            
+        // }
+        public IActionResult GetProductsByName(string searchString="",int quantity=0){
+            var products=_uow.Product.GetAll(x=>x.Product__Name.Contains(searchString)).Take(quantity);
+            return products.Count()>0
+            ?Ok(products):NoContent();
+        }
         [HttpGet("get-product")]
         public IActionResult GetProductById(int id){
             var product = _uow.Product.Get(id);
@@ -36,8 +44,10 @@ namespace SneakerAPI.AdminApi.Controllers.ProductControllers
             return isSuccess?Ok(new {result=isSuccess,message="updated product successfully"})
             :BadRequest(new {result=isSuccess,message="update product failed"});
         }
-        [HttpPatch("delete-product")]
-        public IActionResult Detele(Product product){
+        [HttpPatch("delete-product/{id}")]
+        public IActionResult Detele(int id){
+            var product=_uow.Product.Get(id);
+            //changeStatus
             // product.Status=1;
             var isSuccess=_uow.Product.Update(product);
             return isSuccess?Ok(new {result=isSuccess,message="deleted product successfully"})

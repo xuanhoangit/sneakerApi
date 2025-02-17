@@ -10,8 +10,8 @@ namespace SneakerAPI.Api.Controllers
 {   
     [ApiController]
     [Route("api/[Controller]")]
-    [Authorize]
-    [Area("customer")]
+    // [Authorize]
+    // [Area("customer")]
     public class ProductController : BaseController
     {
         private readonly IUnitOfWork uow;

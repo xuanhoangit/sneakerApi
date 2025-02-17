@@ -138,7 +138,7 @@ public class DataGenerator
         {
             this.uow = uow;
         }
-        // [HttpPost("seed")]
+        [HttpPost("seed")]
         public IActionResult SeedData()
         {   
             uow.Role.Add(new Core.Models.UserEntities.Role{
