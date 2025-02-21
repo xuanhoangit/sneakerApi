@@ -1,26 +1,56 @@
 using Microsoft.AspNetCore.Mvc;
 using SneakerAPI.Core.Interfaces;
+using SneakerAPI.Core.Models.Filters;
 using SneakerAPI.Core.Models.ProductEntities;
 
 namespace SneakerAPI.AdminApi.Controllers.ProductControllers
-{
+{   
+    [ApiController]
+    [Route("api/[Controller]")]
     public class ProductController : BaseController
     {
         private readonly IUnitOfWork _uow;
-
+        private readonly int ProductEachPage=20;
         public ProductController(IUnitOfWork uow):base(uow)
         {
             _uow = uow;
         }
-        // public IActionResult GetProductsByCategories(int cateId){
-            
-        // }
+        [HttpGet("filter")]
+        public IActionResult GetProductsByFilter([FromQuery] ProductFilter filter){
+            return Ok(_uow.Product.GetFilteredProducts(filter).Skip((filter.Page-1)*ProductEachPage).Take(ProductEachPage).ToList());
+        }
+        [HttpGet("get-productsbycategory/{cateId}/{page}")]
+        public IActionResult GetProductsByCategories(int cateId,int page=1){
+            var category= _uow.Category.Get(cateId);
+            if(category==null){
+                return NotFound("Category is not exists");
+            }
+            var productIds= _uow.ProductCategory.GetAll(x=>x.ProductCategory__CategoryId==cateId).Select(x=>x.ProductCategory__ProductId).ToList();
+            System.Console.WriteLine(productIds);
+            if(productIds==null || productIds.Count()<=0){
+                return NotFound("Have no product in this category");
+            }
+            var products=_uow.Product.GetAll(x=>productIds.Contains(x.Product__Id)).Skip((page-1)*ProductEachPage).Take(ProductEachPage);
+            return Ok(products);
+        }
+        [HttpPut("realease-products")]
+        public IActionResult ReleaseProducts(int[] productIds){
+            var products= _uow.Product.GetAll(x=>
+            productIds.Contains(x.Product__Id) && x.Product__Status==(int)Status.Unrelease);
+            foreach (var p in products)
+            {
+                p.Product__Status=(int)Status.Active;
+                var result=_uow.Product.Update(p);
+            }
+            return Ok();
+        }
+        [HttpGet("find-products/string={searchString},take={quantity}")]
         public IActionResult GetProductsByName(string searchString="",int quantity=0){
             var products=_uow.Product.GetAll(x=>x.Product__Name.Contains(searchString)).Take(quantity);
             return products.Count()>0
             ?Ok(products):NoContent();
         }
-        [HttpGet("get-product")]
+        [HttpGet("get-product/{id}")]
         public IActionResult GetProductById(int id){
             var product = _uow.Product.Get(id);
             return product!=null?
@@ -48,7 +78,7 @@ namespace SneakerAPI.AdminApi.Controllers.ProductControllers
         public IActionResult Detele(int id){
             var product=_uow.Product.Get(id);
             //changeStatus
-            // product.Status=1;
+            product.Product__Status=(int)Status.Unactive;
             var isSuccess=_uow.Product.Update(product);
             return isSuccess?Ok(new {result=isSuccess,message="deleted product successfully"})
             :BadRequest(new {result=isSuccess,message="delete product failed"});

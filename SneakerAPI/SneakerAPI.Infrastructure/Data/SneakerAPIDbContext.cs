@@ -15,6 +15,7 @@ namespace SneakerAPI.Infrastructure.Data
         public DbSet<Order>? Orders {get;set;}
         public DbSet<OrderDetail>? OrderDetails {get;set;}
         //PRODUCTENTITIES
+        public DbSet<ProductColorFile> Files {get;set;}
         public DbSet<Product>? Products {get;set;}
         public DbSet<ProductColor>? ProductColors {get;set;}
         public DbSet<ProductColorSize>? ProductColorSizes {get;set;}

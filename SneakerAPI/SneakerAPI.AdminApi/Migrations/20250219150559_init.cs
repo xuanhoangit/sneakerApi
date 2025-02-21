@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SneakerAPI.AdminApi.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -172,6 +172,7 @@ namespace SneakerAPI.AdminApi.Migrations
                     Product__Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Product__CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Product__UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Product__Status = table.Column<int>(type: "int", nullable: false),
                     Product__CreatedByAccountId = table.Column<int>(type: "int", nullable: false),
                     Product__BrandId = table.Column<int>(type: "int", nullable: false)
                 },
@@ -265,8 +266,8 @@ namespace SneakerAPI.AdminApi.Migrations
                 {
                     ProductCategory__Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ProductCategory__ProductId = table.Column<int>(type: "int", nullable: true),
-                    ProductCategory__CategoryId = table.Column<int>(type: "int", nullable: true),
+                    ProductCategory__ProductId = table.Column<int>(type: "int", nullable: false),
+                    ProductCategory__CategoryId = table.Column<int>(type: "int", nullable: false),
                     Category__Id = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -281,7 +282,8 @@ namespace SneakerAPI.AdminApi.Migrations
                         name: "FK_ProductCategories_Products_ProductCategory__ProductId",
                         column: x => x.ProductCategory__ProductId,
                         principalTable: "Products",
-                        principalColumn: "Product__Id");
+                        principalColumn: "Product__Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(

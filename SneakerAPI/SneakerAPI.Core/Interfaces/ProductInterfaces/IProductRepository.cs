@@ -1,8 +1,10 @@
 using SneakerAPI.Core.Models;
+using SneakerAPI.Core.Models.Filters;
 using SneakerAPI.Core.Models.ProductEntities;
 
 namespace SneakerAPI.Core.Interfaces.ProductInterfaces;
 public interface IProductRepository : IRepository<Product>
 {
-        // Task<bool> GetAll ();
+        IQueryable<Product> GetFilteredProducts(ProductFilter filter);
+        
 }

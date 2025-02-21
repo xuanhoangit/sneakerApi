@@ -11,10 +11,10 @@ namespace SneakerAPI.Core.Models.ProductEntities
 
         public int ProductColorSize__SizeId { get; set; }
         [ForeignKey("ProductColorSize__SizeId")]
-        public Size? Size { get; set; }
+        public  Size? Size { get; set; }
         public int ProductColorSize__ProductColorId { get; set; }
         [ForeignKey("ProductColorSize__ProductColorId")]
-        public ProductColor? ProductColor { get; set; }
+        public  ProductColor? ProductColor { get; set; }
     }
 }
 

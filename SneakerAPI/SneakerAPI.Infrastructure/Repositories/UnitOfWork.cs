@@ -19,6 +19,7 @@ public class UnitOfWork : IUnitOfWork
         Order = new OrderRepository(_db);
         OrderDetail = new OrderDetailRepository(_db);
         //Product
+        ProductColorFile = new ProductColorFileRepository(_db);
         Product = new ProductRepository(_db);
         ProductTag = new ProductTagRepository(_db);
         Size = new SizeRepository(_db);
@@ -42,6 +43,7 @@ public class UnitOfWork : IUnitOfWork
 
     public IOrderDetailRepository OrderDetail {get;}
 
+    public IProductColorFileRepository ProductColorFile {get;}
     public IProductRepository Product {get;}
 
     public IProductTagRepository ProductTag {get;}

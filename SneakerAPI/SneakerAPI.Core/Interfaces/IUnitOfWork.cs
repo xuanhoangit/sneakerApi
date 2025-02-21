@@ -12,6 +12,7 @@ public interface IUnitOfWork
     IOrderRepository Order { get; }
     IOrderDetailRepository OrderDetail { get; }
     //IProduct
+    IProductColorFileRepository ProductColorFile { get; }
     IProductRepository Product { get; }
     IProductTagRepository ProductTag { get; }
     ISizeRepository Size { get; }

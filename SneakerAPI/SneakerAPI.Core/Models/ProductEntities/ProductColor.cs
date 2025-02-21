@@ -11,11 +11,11 @@ namespace SneakerAPI.Core.Models.ProductEntities
         public decimal ProductColor__Price { get; set; }
         public int ProductColor__ColorId { get; set; }
         [ForeignKey("ProductColor__ColorId")]
-        public Color? Color { get; set; }
+        public  Color? Color { get; set; }
         public int ProductColor__ProductId { get; set; }
         [ForeignKey("ProductColor__ProductId")]
-        public Product? Product { get; set; }
-        [NotMapped]
-        public List<ProductColorSize>? ProductColorSizes { get; set; }
+        public  Product? Product { get; set; }
+        // [NotMapped]
+        public virtual ICollection<ProductColorSize>? ProductColorSizes { get; set; }
     }
 }

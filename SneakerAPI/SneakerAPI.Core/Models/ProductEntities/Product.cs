@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using SneakerAPI.Core.Models.UserEntities;
@@ -14,14 +15,16 @@ namespace SneakerAPI.Core.Models.ProductEntities
         public string? Product__Description { get; set; }
         public DateTime? Product__CreatedDate { get; set; }=DateTime.Now;
         public DateTime? Product__UpdatedDate { get; set; }
+        public int Product__Status {get;set;}=(int)Status.Unrelease;
+        // public 
         //
         public int Product__CreatedByAccountId { get; set; } 
         [ForeignKey("Product__CreatedByAccountId")]
-        public Account?  Account { get; set; }
+        public  Account?  Account { get; set; }
         public int Product__BrandId { get; set; }
         [ForeignKey("Product__BrandId")]
-        public Brand? Brand { get; set; }
-        [NotMapped]
-        public List<ProductColor>? ProductColors { get; set; }
+        public  Brand? Brand { get; set; }
+        // [NotMapped]
+        public virtual ICollection<ProductColor>? ProductColors { get; set; }
     }
 }

@@ -12,8 +12,8 @@ using SneakerAPI.Infrastructure.Data;
 namespace SneakerAPI.AdminApi.Migrations
 {
     [DbContext(typeof(SneakerAPIDbContext))]
-    [Migration("20250215142801_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250220154531_addFileEntity")]
+    partial class addFileEntity
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -177,6 +177,9 @@ namespace SneakerAPI.AdminApi.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Product__Status")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("Product__UpdatedDate")
                         .HasColumnType("datetime2");
 
@@ -200,10 +203,10 @@ namespace SneakerAPI.AdminApi.Migrations
                     b.Property<int?>("Category__Id")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ProductCategory__CategoryId")
+                    b.Property<int>("ProductCategory__CategoryId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ProductCategory__ProductId")
+                    b.Property<int>("ProductCategory__ProductId")
                         .HasColumnType("int");
 
                     b.HasKey("ProductCategory__Id");
@@ -239,6 +242,27 @@ namespace SneakerAPI.AdminApi.Migrations
                     b.HasIndex("ProductColor__ProductId");
 
                     b.ToTable("ProductColors");
+                });
+
+            modelBuilder.Entity("SneakerAPI.Core.Models.ProductEntities.ProductColorFile", b =>
+                {
+                    b.Property<int>("ProductColorFile__Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductColorFile__Id"));
+
+                    b.Property<string>("ProductColorFile__Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ProductColorFile__ProductColorId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProductColorFile__Id");
+
+                    b.HasIndex("ProductColorFile__ProductColorId");
+
+                    b.ToTable("Files");
                 });
 
             modelBuilder.Entity("SneakerAPI.Core.Models.ProductEntities.ProductColorSize", b =>
@@ -517,7 +541,9 @@ namespace SneakerAPI.AdminApi.Migrations
 
                     b.HasOne("SneakerAPI.Core.Models.ProductEntities.Product", "Product")
                         .WithMany()
-                        .HasForeignKey("ProductCategory__ProductId");
+                        .HasForeignKey("ProductCategory__ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Category");
 
@@ -533,7 +559,7 @@ namespace SneakerAPI.AdminApi.Migrations
                         .IsRequired();
 
                     b.HasOne("SneakerAPI.Core.Models.ProductEntities.Product", "Product")
-                        .WithMany()
+                        .WithMany("ProductColors")
                         .HasForeignKey("ProductColor__ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -543,10 +569,21 @@ namespace SneakerAPI.AdminApi.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("SneakerAPI.Core.Models.ProductEntities.ProductColorSize", b =>
+            modelBuilder.Entity("SneakerAPI.Core.Models.ProductEntities.ProductColorFile", b =>
                 {
                     b.HasOne("SneakerAPI.Core.Models.ProductEntities.ProductColor", "ProductColor")
                         .WithMany()
+                        .HasForeignKey("ProductColorFile__ProductColorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ProductColor");
+                });
+
+            modelBuilder.Entity("SneakerAPI.Core.Models.ProductEntities.ProductColorSize", b =>
+                {
+                    b.HasOne("SneakerAPI.Core.Models.ProductEntities.ProductColor", "ProductColor")
+                        .WithMany("ProductColorSizes")
                         .HasForeignKey("ProductColorSize__ProductColorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -611,6 +648,16 @@ namespace SneakerAPI.AdminApi.Migrations
                         .HasForeignKey("StaffInfo__AccountId");
 
                     b.Navigation("Account");
+                });
+
+            modelBuilder.Entity("SneakerAPI.Core.Models.ProductEntities.Product", b =>
+                {
+                    b.Navigation("ProductColors");
+                });
+
+            modelBuilder.Entity("SneakerAPI.Core.Models.ProductEntities.ProductColor", b =>
+                {
+                    b.Navigation("ProductColorSizes");
                 });
 #pragma warning restore 612, 618
         }
