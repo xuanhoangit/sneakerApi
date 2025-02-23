@@ -24,8 +24,6 @@ public interface IUnitOfWork
     IProductColorSizeRepository ProductColorSize { get; }
     IProductCategoryRepository ProductCategory { get; }
     //IUser
-    IAccountRepository Account { get; }
-    IRoleRepository Role { get; }
     ICustomerInfoRepository CustomerInfo { get; }
     IStaffInfoRepository StaffInfo { get; }
     IAddressRepository Address { get; }

@@ -1,16 +1,57 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SneakerAPI.Core;
+using SneakerAPI.Core.Models;
 using SneakerAPI.Core.Models.OrderEntities;
 using SneakerAPI.Core.Models.ProductEntities;
 using SneakerAPI.Core.Models.UserEntities;
 namespace SneakerAPI.Infrastructure.Data
 {
-    public class SneakerAPIDbContext : DbContext
+    public class SneakerAPIDbContext : IdentityDbContext<IdentityAccount,IdentityRole<int>,int>
     {
         public SneakerAPIDbContext(DbContextOptions<SneakerAPIDbContext> options):base(options)
         {
             
         }
+protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
+        
+        // Ví dụ: đổi tên bảng khi dùng kiểu int
+        builder.Entity<IdentityAccount>(entity =>
+        {
+            entity.ToTable("Accounts");
+        });
+        builder.Entity<IdentityRole<int>>(entity =>
+        {
+            entity.ToTable("Roles");
+        });
+        builder.Entity<IdentityUserRole<int>>(entity =>
+        {
+            entity.ToTable("AccountRoles");
+            entity.Property(x=>x.UserId).HasColumnName("AccountId");
+        });
+        builder.Entity<IdentityUserClaim<int>>(entity =>
+        {
+            entity.ToTable("AccountClaims");
+            entity.Property(x=>x.UserId).HasColumnName("AccountId");
+        });
+        builder.Entity<IdentityUserLogin<int>>(entity =>
+        {
+            entity.ToTable("AccountLogins");
+            entity.Property(x=>x.UserId).HasColumnName("AccountId");
+        });
+        builder.Entity<IdentityRoleClaim<int>>(entity =>
+        {
+            entity.ToTable("RoleClaims");
+        });
+        builder.Entity<IdentityUserToken<int>>(entity =>
+        {
+            entity.ToTable("AccountTokens");
+            entity.Property(x=>x.UserId).HasColumnName("AccountId");
+        });
+    }
         //ORDERENTITIES
         public DbSet<Order>? Orders {get;set;}
         public DbSet<OrderDetail>? OrderDetails {get;set;}
@@ -27,10 +68,10 @@ namespace SneakerAPI.Infrastructure.Data
         public DbSet<ProductCategory>? ProductCategories {get;set;}
         public DbSet<Brand>? Brands {get;set;}
         //USERENTITIES
-        public DbSet<Account>? Accounts {get;set;}
+
         public DbSet<Address>? Addresses {get;set;}
         public DbSet<CustomerInfo>? CustomerInfos {get;set;}
         public DbSet<StaffInfo>? StaffInfos {get;set;}
-        public DbSet<Role>? Roles {get;set;}
+
     }
 }

@@ -7,6 +7,7 @@ namespace SneakerAPI.AdminApi.Controllers.ProductControllers
 {   
     [ApiController]
     [Route("api/[Controller]")]
+    
     public class ProductColorController : BaseController
     {
         private readonly IUnitOfWork _uow;

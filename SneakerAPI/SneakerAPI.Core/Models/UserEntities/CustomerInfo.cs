@@ -15,6 +15,6 @@ namespace SneakerAPI.Core.Models.UserEntities
         public decimal CustomerInfo__SpendingPoint { get; set; }
         public int? CustomerInfo__AccountId { get; set; }
         [ForeignKey("CustomerInfo__AccountId")]
-        public Account? Account { get; set; }
+        public IdentityAccount? Account { get; set; }
     }
 }

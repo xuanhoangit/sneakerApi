@@ -12,6 +12,32 @@ namespace SneakerAPI.AdminApi.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Accounts",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SecurityStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    LockoutEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    AccessFailedCount = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Accounts", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Brands",
                 columns: table => new
                 {
@@ -58,13 +84,15 @@ namespace SneakerAPI.AdminApi.Migrations
                 name: "Roles",
                 columns: table => new
                 {
-                    Role__Id = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Role__Name = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Roles", x => x.Role__Id);
+                    table.PrimaryKey("PK_Roles", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -94,25 +122,64 @@ namespace SneakerAPI.AdminApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Accounts",
+                name: "AccountClaims",
                 columns: table => new
                 {
-                    Account__Id = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Account__Username = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Account__PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Account__RoleId = table.Column<int>(type: "int", nullable: true),
-                    Account__IsActive = table.Column<bool>(type: "bit", nullable: true),
-                    Account__IsBlocked = table.Column<bool>(type: "bit", nullable: true)
+                    AccountId = table.Column<int>(type: "int", nullable: false),
+                    ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Accounts", x => x.Account__Id);
+                    table.PrimaryKey("PK_AccountClaims", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Accounts_Roles_Account__RoleId",
-                        column: x => x.Account__RoleId,
-                        principalTable: "Roles",
-                        principalColumn: "Role__Id");
+                        name: "FK_AccountClaims_Accounts_AccountId",
+                        column: x => x.AccountId,
+                        principalTable: "Accounts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AccountLogins",
+                columns: table => new
+                {
+                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ProviderKey = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ProviderDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AccountId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AccountLogins", x => new { x.LoginProvider, x.ProviderKey });
+                    table.ForeignKey(
+                        name: "FK_AccountLogins_Accounts_AccountId",
+                        column: x => x.AccountId,
+                        principalTable: "Accounts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AccountTokens",
+                columns: table => new
+                {
+                    AccountId = table.Column<int>(type: "int", nullable: false),
+                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AccountTokens", x => new { x.AccountId, x.LoginProvider, x.Name });
+                    table.ForeignKey(
+                        name: "FK_AccountTokens_Accounts_AccountId",
+                        column: x => x.AccountId,
+                        principalTable: "Accounts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -136,7 +203,7 @@ namespace SneakerAPI.AdminApi.Migrations
                         name: "FK_CustomerInfos_Accounts_CustomerInfo__AccountId",
                         column: x => x.CustomerInfo__AccountId,
                         principalTable: "Accounts",
-                        principalColumn: "Account__Id");
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -158,8 +225,30 @@ namespace SneakerAPI.AdminApi.Migrations
                         name: "FK_Orders_Accounts_Order__CreatedByAccountId",
                         column: x => x.Order__CreatedByAccountId,
                         principalTable: "Accounts",
-                        principalColumn: "Account__Id",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StaffInfos",
+                columns: table => new
+                {
+                    StaffInfo__Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    StaffInfo__FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StaffInfo__LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StaffInfo__Phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StaffInfo__Avatar = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StaffInfo__AccountId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StaffInfos", x => x.StaffInfo__Id);
+                    table.ForeignKey(
+                        name: "FK_StaffInfos_Accounts_StaffInfo__AccountId",
+                        column: x => x.StaffInfo__AccountId,
+                        principalTable: "Accounts",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -183,7 +272,7 @@ namespace SneakerAPI.AdminApi.Migrations
                         name: "FK_Products_Accounts_Product__CreatedByAccountId",
                         column: x => x.Product__CreatedByAccountId,
                         principalTable: "Accounts",
-                        principalColumn: "Account__Id",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Products_Brands_Product__BrandId",
@@ -194,25 +283,48 @@ namespace SneakerAPI.AdminApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "StaffInfos",
+                name: "AccountRoles",
                 columns: table => new
                 {
-                    StaffInfo__Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    StaffInfo__FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    StaffInfo__LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    StaffInfo__Phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    StaffInfo__Avatar = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    StaffInfo__AccountId = table.Column<int>(type: "int", nullable: true)
+                    AccountId = table.Column<int>(type: "int", nullable: false),
+                    RoleId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_StaffInfos", x => x.StaffInfo__Id);
+                    table.PrimaryKey("PK_AccountRoles", x => new { x.AccountId, x.RoleId });
                     table.ForeignKey(
-                        name: "FK_StaffInfos_Accounts_StaffInfo__AccountId",
-                        column: x => x.StaffInfo__AccountId,
+                        name: "FK_AccountRoles_Accounts_AccountId",
+                        column: x => x.AccountId,
                         principalTable: "Accounts",
-                        principalColumn: "Account__Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AccountRoles_Roles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Roles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RoleClaims",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    RoleId = table.Column<int>(type: "int", nullable: false),
+                    ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RoleClaims", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RoleClaims_Roles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Roles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -340,6 +452,26 @@ namespace SneakerAPI.AdminApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Files",
+                columns: table => new
+                {
+                    ProductColorFile__Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProductColorFile__Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ProductColorFile__ProductColorId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Files", x => x.ProductColorFile__Id);
+                    table.ForeignKey(
+                        name: "FK_Files_ProductColors_ProductColorFile__ProductColorId",
+                        column: x => x.ProductColorFile__ProductColorId,
+                        principalTable: "ProductColors",
+                        principalColumn: "ProductColor__Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ProductColorSizes",
                 columns: table => new
                 {
@@ -367,9 +499,31 @@ namespace SneakerAPI.AdminApi.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Accounts_Account__RoleId",
+                name: "IX_AccountClaims_AccountId",
+                table: "AccountClaims",
+                column: "AccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AccountLogins_AccountId",
+                table: "AccountLogins",
+                column: "AccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AccountRoles_RoleId",
+                table: "AccountRoles",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "EmailIndex",
                 table: "Accounts",
-                column: "Account__RoleId");
+                column: "NormalizedEmail");
+
+            migrationBuilder.CreateIndex(
+                name: "UserNameIndex",
+                table: "Accounts",
+                column: "NormalizedUserName",
+                unique: true,
+                filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Addresses_Address__CustomerInfo",
@@ -380,6 +534,11 @@ namespace SneakerAPI.AdminApi.Migrations
                 name: "IX_CustomerInfos_CustomerInfo__AccountId",
                 table: "CustomerInfos",
                 column: "CustomerInfo__AccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Files_ProductColorFile__ProductColorId",
+                table: "Files",
+                column: "ProductColorFile__ProductColorId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderDetails_Order__Id",
@@ -442,6 +601,18 @@ namespace SneakerAPI.AdminApi.Migrations
                 column: "Tag__Id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_RoleClaims_RoleId",
+                table: "RoleClaims",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "RoleNameIndex",
+                table: "Roles",
+                column: "NormalizedName",
+                unique: true,
+                filter: "[NormalizedName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_StaffInfos_StaffInfo__AccountId",
                 table: "StaffInfos",
                 column: "StaffInfo__AccountId");
@@ -451,7 +622,22 @@ namespace SneakerAPI.AdminApi.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "AccountClaims");
+
+            migrationBuilder.DropTable(
+                name: "AccountLogins");
+
+            migrationBuilder.DropTable(
+                name: "AccountRoles");
+
+            migrationBuilder.DropTable(
+                name: "AccountTokens");
+
+            migrationBuilder.DropTable(
                 name: "Addresses");
+
+            migrationBuilder.DropTable(
+                name: "Files");
 
             migrationBuilder.DropTable(
                 name: "OrderDetails");
@@ -464,6 +650,9 @@ namespace SneakerAPI.AdminApi.Migrations
 
             migrationBuilder.DropTable(
                 name: "ProductTags");
+
+            migrationBuilder.DropTable(
+                name: "RoleClaims");
 
             migrationBuilder.DropTable(
                 name: "StaffInfos");
@@ -487,6 +676,9 @@ namespace SneakerAPI.AdminApi.Migrations
                 name: "Tags");
 
             migrationBuilder.DropTable(
+                name: "Roles");
+
+            migrationBuilder.DropTable(
                 name: "Colors");
 
             migrationBuilder.DropTable(
@@ -497,9 +689,6 @@ namespace SneakerAPI.AdminApi.Migrations
 
             migrationBuilder.DropTable(
                 name: "Brands");
-
-            migrationBuilder.DropTable(
-                name: "Roles");
         }
     }
 }

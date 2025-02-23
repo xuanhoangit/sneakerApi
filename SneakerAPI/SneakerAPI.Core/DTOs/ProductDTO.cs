@@ -1,4 +1,5 @@
 
+using SneakerAPI.Core.Models;
 using SneakerAPI.Core.Models.ProductEntities;
 using SneakerAPI.Core.Models.UserEntities;
 
@@ -12,7 +13,7 @@ namespace SneakerAPI.Core.DTOs
         public string? Product__Description { get; set; }
         public DateTime? Product__CreatedDate { get; set; }
         public DateTime? Product__UpdatedDate { get; set; }
-        public Account? Account {get;set;}
+        public IdentityAccount? Account {get;set;}
         public List<ProductColor>? ProductColors { get; set; }
         public Brand? Brand {get;set;}
         public Category? Category {get;set;}

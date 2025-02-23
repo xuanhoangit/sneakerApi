@@ -12,7 +12,7 @@ using SneakerAPI.Infrastructure.Data;
 namespace SneakerAPI.AdminApi.Migrations
 {
     [DbContext(typeof(SneakerAPIDbContext))]
-    [Migration("20250219150559_init")]
+    [Migration("20250222164146_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -24,6 +24,211 @@ namespace SneakerAPI.AdminApi.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex")
+                        .HasFilter("[NormalizedName] IS NOT NULL");
+
+                    b.ToTable("Roles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("RoleClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int")
+                        .HasColumnName("AccountId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AccountClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int")
+                        .HasColumnName("AccountId");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AccountLogins", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("int")
+                        .HasColumnName("AccountId");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AccountRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("int")
+                        .HasColumnName("AccountId");
+
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("AccountTokens", (string)null);
+                });
+
+            modelBuilder.Entity("SneakerAPI.Core.Models.IdentityAccount", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.ToTable("Accounts", (string)null);
+                });
 
             modelBuilder.Entity("SneakerAPI.Core.Models.OrderEntities.Order", b =>
                 {
@@ -244,6 +449,27 @@ namespace SneakerAPI.AdminApi.Migrations
                     b.ToTable("ProductColors");
                 });
 
+            modelBuilder.Entity("SneakerAPI.Core.Models.ProductEntities.ProductColorFile", b =>
+                {
+                    b.Property<int>("ProductColorFile__Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductColorFile__Id"));
+
+                    b.Property<string>("ProductColorFile__Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ProductColorFile__ProductColorId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProductColorFile__Id");
+
+                    b.HasIndex("ProductColorFile__ProductColorId");
+
+                    b.ToTable("Files");
+                });
+
             modelBuilder.Entity("SneakerAPI.Core.Models.ProductEntities.ProductColorSize", b =>
                 {
                     b.Property<int>("ProductColorSize__Id")
@@ -331,36 +557,6 @@ namespace SneakerAPI.AdminApi.Migrations
                     b.ToTable("Tags");
                 });
 
-            modelBuilder.Entity("SneakerAPI.Core.Models.UserEntities.Account", b =>
-                {
-                    b.Property<int>("Account__Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Account__Id"));
-
-                    b.Property<bool?>("Account__IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool?>("Account__IsBlocked")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Account__PasswordHash")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("Account__RoleId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Account__Username")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Account__Id");
-
-                    b.HasIndex("Account__RoleId");
-
-                    b.ToTable("Accounts");
-                });
-
             modelBuilder.Entity("SneakerAPI.Core.Models.UserEntities.Address", b =>
                 {
                     b.Property<int>("Address__Id")
@@ -427,22 +623,6 @@ namespace SneakerAPI.AdminApi.Migrations
                     b.ToTable("CustomerInfos");
                 });
 
-            modelBuilder.Entity("SneakerAPI.Core.Models.UserEntities.Role", b =>
-                {
-                    b.Property<int>("Role__Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Role__Id"));
-
-                    b.Property<string>("Role__Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Role__Id");
-
-                    b.ToTable("Roles");
-                });
-
             modelBuilder.Entity("SneakerAPI.Core.Models.UserEntities.StaffInfo", b =>
                 {
                     b.Property<int>("StaffInfo__Id")
@@ -473,9 +653,60 @@ namespace SneakerAPI.AdminApi.Migrations
                     b.ToTable("StaffInfos");
                 });
 
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<int>", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
+                {
+                    b.HasOne("SneakerAPI.Core.Models.IdentityAccount", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
+                {
+                    b.HasOne("SneakerAPI.Core.Models.IdentityAccount", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<int>", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SneakerAPI.Core.Models.IdentityAccount", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
+                {
+                    b.HasOne("SneakerAPI.Core.Models.IdentityAccount", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("SneakerAPI.Core.Models.OrderEntities.Order", b =>
                 {
-                    b.HasOne("SneakerAPI.Core.Models.UserEntities.Account", "Account")
+                    b.HasOne("SneakerAPI.Core.Models.IdentityAccount", "Account")
                         .WithMany()
                         .HasForeignKey("Order__CreatedByAccountId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -501,7 +732,7 @@ namespace SneakerAPI.AdminApi.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SneakerAPI.Core.Models.UserEntities.Account", "Account")
+                    b.HasOne("SneakerAPI.Core.Models.IdentityAccount", "Account")
                         .WithMany()
                         .HasForeignKey("Product__CreatedByAccountId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -548,6 +779,17 @@ namespace SneakerAPI.AdminApi.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("SneakerAPI.Core.Models.ProductEntities.ProductColorFile", b =>
+                {
+                    b.HasOne("SneakerAPI.Core.Models.ProductEntities.ProductColor", "ProductColor")
+                        .WithMany()
+                        .HasForeignKey("ProductColorFile__ProductColorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ProductColor");
+                });
+
             modelBuilder.Entity("SneakerAPI.Core.Models.ProductEntities.ProductColorSize", b =>
                 {
                     b.HasOne("SneakerAPI.Core.Models.ProductEntities.ProductColor", "ProductColor")
@@ -582,15 +824,6 @@ namespace SneakerAPI.AdminApi.Migrations
                     b.Navigation("Tag");
                 });
 
-            modelBuilder.Entity("SneakerAPI.Core.Models.UserEntities.Account", b =>
-                {
-                    b.HasOne("SneakerAPI.Core.Models.UserEntities.Role", "Role")
-                        .WithMany()
-                        .HasForeignKey("Account__RoleId");
-
-                    b.Navigation("Role");
-                });
-
             modelBuilder.Entity("SneakerAPI.Core.Models.UserEntities.Address", b =>
                 {
                     b.HasOne("SneakerAPI.Core.Models.UserEntities.CustomerInfo", "CustomerInfo")
@@ -602,7 +835,7 @@ namespace SneakerAPI.AdminApi.Migrations
 
             modelBuilder.Entity("SneakerAPI.Core.Models.UserEntities.CustomerInfo", b =>
                 {
-                    b.HasOne("SneakerAPI.Core.Models.UserEntities.Account", "Account")
+                    b.HasOne("SneakerAPI.Core.Models.IdentityAccount", "Account")
                         .WithMany()
                         .HasForeignKey("CustomerInfo__AccountId");
 
@@ -611,7 +844,7 @@ namespace SneakerAPI.AdminApi.Migrations
 
             modelBuilder.Entity("SneakerAPI.Core.Models.UserEntities.StaffInfo", b =>
                 {
-                    b.HasOne("SneakerAPI.Core.Models.UserEntities.Account", "Account")
+                    b.HasOne("SneakerAPI.Core.Models.IdentityAccount", "Account")
                         .WithMany()
                         .HasForeignKey("StaffInfo__AccountId");
 

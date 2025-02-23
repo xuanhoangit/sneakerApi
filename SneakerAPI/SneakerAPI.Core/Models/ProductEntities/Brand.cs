@@ -14,7 +14,7 @@ namespace SneakerAPI.Core.Models.ProductEntities
         [Required]
         public string? Brand__Logo { get; set; }
         [Required]
-        public string? Brand__CreatedUserId  { get; set; }
+        public int Brand__CreatedByAccountId  { get; set; }
         // public DateTime? Brand__Website { get; set; }=DateTime.Now;
         public bool Brand__Status { get; set; }
     }

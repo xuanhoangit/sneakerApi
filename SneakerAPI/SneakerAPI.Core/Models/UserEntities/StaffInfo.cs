@@ -13,6 +13,6 @@ namespace SneakerAPI.Core.Models.UserEntities
         public string? StaffInfo__Avatar { get; set; }
         public int? StaffInfo__AccountId { get; set; }
         [ForeignKey("StaffInfo__AccountId")]
-        public Account? Account { get; set; }
+        public IdentityAccount? Account { get; set; }
     }
 }

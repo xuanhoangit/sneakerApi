@@ -10,7 +10,7 @@ namespace SneakerAPI.Core.Models.OrderEntities
         public int Order__Id { get; set; }
         public int Order__CreatedByAccountId { get; set; }//FK
         [ForeignKey("Order__CreatedByAccountId")]
-        public Account? Account { get; set; }
+        public IdentityAccount? Account { get; set; }
         public int Order__Status { get; set; }
         public decimal Order__Amount { get; set; }
         public decimal Order__Total { get; set; }

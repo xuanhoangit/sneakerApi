@@ -29,7 +29,7 @@ namespace SneakerAPI.AdminApi.Controllers.ProductControllers
 
             foreach (var file in productFiles)
             {
-                var filePath = Path.Combine(uploadFilePath, file.ProductColorFile__Name);
+                var filePath = Path.Combine(uploadFilePath, file.ProductColorFile__Name!);
                 System.Console.WriteLine(productFiles[0].ProductColorFile__Name);
                 System.Console.WriteLine(filePath);
                 // Lưu file vào thư mục server

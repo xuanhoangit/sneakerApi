@@ -1,11 +1,19 @@
 {
   "Version": 1,
-  "Hash": "Jf+oKivy1uqXW2/p+wHFlXjQwNaYBhVOfkF6nmmyOyo=",
+  "Hash": "ZfoF0dL9yf7hlf2VL1taAR1MdK/W1cKkYfNMnNYwAMI=",
   "Source": "SneakerAPI.AdminApi",
   "BasePath": "_content/SneakerAPI.AdminApi",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],
-  "DiscoveryPatterns": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "SneakerAPI.AdminApi\\wwwroot",
+      "Source": "SneakerAPI.AdminApi",
+      "ContentRoot": "D:\\Download\\API\\SneakerApi\\sneakerApi\\SneakerAPI\\SneakerAPI.AdminApi\\wwwroot\\",
+      "BasePath": "_content/SneakerAPI.AdminApi",
+      "Pattern": "**"
+    }
+  ],
   "Assets": []
 }

@@ -31,8 +31,8 @@ public class UnitOfWork : IUnitOfWork
         ProductColorSize = new ProductColorSizeRepository(_db);
         ProductCategory = new ProductCategoryRepository(_db);
         //User
-        Account = new AccountRepository(_db);
-        Role = new RoleRepository(_db);
+        // Account = new AccountRepository(_db);
+        // Role = new RoleRepository(_db);
         CustomerInfo = new CustomerInfoRepository(_db);
         StaffInfo = new StaffInfoRepository(_db);
         Address = new AddressRepository(_db);
@@ -64,9 +64,7 @@ public class UnitOfWork : IUnitOfWork
 
     public IProductCategoryRepository ProductCategory {get;}
 
-    public IAccountRepository Account {get;}
 
-    public IRoleRepository Role {get;}
 
     public ICustomerInfoRepository CustomerInfo {get;}
 
