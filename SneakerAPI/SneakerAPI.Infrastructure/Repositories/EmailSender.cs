@@ -1,22 +1,36 @@
 
-using System.Net;
-using System.Net.Mail;
-using SneakerAPI.Core.Interfaces;
+
+using System;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using MimeKit;
+using MailKit.Net.Smtp;
+using MailKit.Security;
+
 namespace SneakerAPI.Infrastructure.Repositories;
 public class EmailSender : IEmailSender
 {
+    private readonly string _smtpServer = "smtp.gmail.com";
+    private readonly int _smtpPort = 587;
+    private readonly string _smtpUser = "0368154633a@gmail.com";
+    private readonly string _smtpPass = "tmjv vjns wiby ggfa";
+
     public async Task SendEmailAsync(string email, string subject, string htmlMessage)
     {
-        // Sử dụng SMTP hoặc dịch vụ email khác (ví dụ: SendGrid)
-        // Ví dụ sử dụng SmtpClient (cần thêm các cấu hình)
-        using (var client = new SmtpClient("http://localhost:5025"))
+        var message = new MimeMessage();
+        message.From.Add(new MailboxAddress("Admin", _smtpUser));
+        message.To.Add(new MailboxAddress(email, email));
+        message.Subject = subject;
+
+        message.Body = new TextPart("html")
         {
-            client.Credentials = new NetworkCredential("0965972715a@gmail.com", "Txhoang11!");
-            var mailMessage = new MailMessage("0368154633a@gmail.com", email, subject, htmlMessage)
-            {
-                IsBodyHtml = true
-            };
-            await client.SendMailAsync(mailMessage);
-        }
+            Text = htmlMessage
+        };
+
+        using var client = new SmtpClient();
+        await client.ConnectAsync(_smtpServer, _smtpPort, SecureSocketOptions.StartTls);
+        await client.AuthenticateAsync(_smtpUser, _smtpPass);
+        await client.SendAsync(message);
+        await client.DisconnectAsync(true);
     }
 }

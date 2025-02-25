@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using DotNetEnv;
 
 using SneakerAPI.AdminApi.Controllers.ProductControllers;
 using SneakerAPI.Core.Interfaces;
@@ -9,17 +11,19 @@ using SneakerAPI.Infrastructure.Data;
 using SneakerAPI.Infrastructure.Repositories;
 using System.Text;
 using SneakerAPI.Core.Models;
-using DotNetEnv;
 var  AllowHostSpecifiOrigins = "_allowHostSpecifiOrigins";
-Env.Load();
 var builder = WebApplication.CreateBuilder(args);
-
+Env.Load();
+builder.Configuration
+    .AddEnvironmentVariables()
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+// var config=builder.Configuration;
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: AllowHostSpecifiOrigins,
                       policy  =>
                       {
-                          policy.WithOrigins("http://localhost:5173").AllowAnyMethod()
+                          policy.WithOrigins("http://127.0.0.1:5500").AllowAnyMethod()
                                                                             .AllowAnyHeader()
                                                                             .AllowCredentials();
                       });
@@ -50,12 +54,25 @@ builder.Services.AddAuthentication(options =>
          ValidateAudience = true,
          ValidateLifetime = true,
          ValidateIssuerSigningKey = true,
-         ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
-         ValidAudience = builder.Configuration["JWT:ValidAudience"],
+         ValidIssuer = Environment.GetEnvironmentVariable("JWT__ValidIssuer"),
+         ValidAudience = Environment.GetEnvironmentVariable("JWT__ValidAudience"),
          IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT__Secret")))
     };
 });
-
+var config=builder.Configuration;
+config["ConnectionStrings:SneakerAPIConnection"]=Environment.GetEnvironmentVariable("ConnectionString");
+config["EmailSettings:SmtpServer"]=Environment.GetEnvironmentVariable("ES__SmtpServer");
+config["EmailSettings:SmtpPort"]=Environment.GetEnvironmentVariable("ES__SmtpPort");
+config["EmailSettings:SmtpUser"]=Environment.GetEnvironmentVariable("ES__SmtpUser");
+config["EmailSettings:SmtpPass"]=Environment.GetEnvironmentVariable("ES__SmtpPass");
+// System.Console.WriteLine(config["JWT:ValidIssuer"]);
+// System.Console.WriteLine(config["JWT:ValidAudience"]);
+// System.Console.WriteLine(config["JWT:Secret"]);
+// System.Console.WriteLine(config["EmailSettings:SmtpServer"]);
+// System.Console.WriteLine(config["EmailSettings:SmtpPort"]);
+// System.Console.WriteLine(config["EmailSettings:SmtpUser"]);
+// System.Console.WriteLine(config["EmailSettings:SmtpPass"]);
+// System.Console.WriteLine(config["ConnectionStrings:SneakerAPIConnection"]);
 var app = builder.Build();
 // Thực hiện seed Role và tài khoản Admin
 using (var scope = app.Services.CreateScope())

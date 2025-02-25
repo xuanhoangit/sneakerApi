@@ -1,5 +1,5 @@
-namespace SneakerAPI.Core.Interfaces;
-public interface IEmailSender
-{
-    Task SendEmailAsync(string email, string subject, string htmlMessage);
-}
+// namespace SneakerAPI.Core.Interfaces;
+// public interface IEmailSender : IEmailSender
+// {
+//     Task SendEmailAsync(string email, string subject, string htmlMessage);
+// }

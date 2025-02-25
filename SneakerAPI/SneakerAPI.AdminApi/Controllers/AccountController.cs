@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SneakerAPI.Core.DTOs;
 using SneakerAPI.Core.Models;
 
-namespace YourNamespace.Controllers
+namespace SneakerAPI.AdminApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -25,13 +25,18 @@ namespace YourNamespace.Controllers
 
         // Đăng ký
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterDto model)
-        {
+        public async Task<IActionResult> Register(RegisterDto model,string role="Staff")
+        {   
+
+
+            if(model.Password!=model.PasswordComfirm){
+                return BadRequest("Password and password confirm was not match");
+            }
             var account = new IdentityAccount { UserName = model.Email, Email = model.Email };
             var result = await _accountManager.CreateAsync(account, model.Password);
             if (result.Succeeded)
             {   
-                await _accountManager.AddToRoleAsync(account, Roles.Staff.ToString());
+                await _accountManager.AddToRoleAsync(account, role);
 
 
                 // Sinh token xác thực email
