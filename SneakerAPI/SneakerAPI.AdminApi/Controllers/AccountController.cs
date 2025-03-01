@@ -1,8 +1,16 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.IdentityModel.Tokens;
+using SneakerAPI.Core.Dtos;
 using SneakerAPI.Core.DTOs;
+using SneakerAPI.Core.Libraries;
 using SneakerAPI.Core.Models;
+
 
 namespace SneakerAPI.AdminApi.Controllers
 {
@@ -13,79 +21,166 @@ namespace SneakerAPI.AdminApi.Controllers
         private readonly UserManager<IdentityAccount> _accountManager;
         private readonly SignInManager<IdentityAccount> _signInManager;
         private readonly IEmailSender _emailSender;
+        private readonly IConfiguration _config;
+        private readonly IMemoryCache _cache;
+
 
         public AccountController(UserManager<IdentityAccount> accountManager,
                                  SignInManager<IdentityAccount> signInManager,
-                                 IEmailSender emailSender)
+                                 IEmailSender emailSender,
+                                 IConfiguration config,
+                                 IMemoryCache cache)
         {
             _accountManager = accountManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
+            _config = config;
+            _cache = cache;
         }
 
-        // Đăng ký
+        private string GenerateJwtToken(string username, string role)
+        {
+            var jwtSettings = _config.GetSection("JWT");
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"]));
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, username),
+                new Claim(ClaimTypes.Role, role),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
+
+            var token = new JwtSecurityToken(
+                issuer: jwtSettings["Issuer"],
+                audience: jwtSettings["Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(jwtSettings["ExpireMinutes"])),
+                signingCredentials: credentials
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterDto model,string role="Staff")
-        {   
-
-
-            if(model.Password!=model.PasswordComfirm){
-                return BadRequest("Password and password confirm was not match");
+        public async Task<IActionResult> Register(RegisterDto model, string role = "Staff")
+        {
+            if (model.Password != model.PasswordComfirm)
+            {
+                return BadRequest("Password and password confirm do not match");
             }
-            var account = new IdentityAccount { UserName = model.Email, Email = model.Email };
+
+            var account = new IdentityAccount
+            {
+                UserName = model.Email,
+                Email = model.Email,
+                // IsEmailConfirmed = false
+            };
+
             var result = await _accountManager.CreateAsync(account, model.Password);
             if (result.Succeeded)
-            {   
+            {
                 await _accountManager.AddToRoleAsync(account, role);
 
+                // Sinh OTP và lưu vào MemoryCache (hết hạn sau 5 phút)
+                var otpCode = HandleString.GenerateVerifyCode(4);
+                _cache.Set(model.Email, otpCode, TimeSpan.FromMinutes(5));
 
-                // Sinh token xác thực email
-                var token = await _accountManager.GenerateEmailConfirmationTokenAsync(account);
-                // Tạo link xác thực (lưu ý: cần mã hóa token nếu cần)
-                var confirmationLink = Url.Action(nameof(ConfirmEmail), "Account", new { userId = account.Id, token }, Request.Scheme);
-                
-                // Gửi email xác thực
-                await _emailSender.SendEmailAsync(model.Email, "Xác nhận Email", 
-                    $"Vui lòng nhấp vào link sau để xác nhận email: <a href='{confirmationLink}'>Xác nhận Email</a>");
-                
-                return Ok("Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản.");
+                // Gửi OTP qua email
+                await _emailSender.SendEmailAsync(model.Email, "Xác nhận Email",
+                    EmailTemplateHtml.RenderEmailBody(model.Email, otpCode));
+
+                return Ok("Đăng ký thành công. Vui lòng kiểm tra email để nhập mã xác thực.");
             }
             return BadRequest(result.Errors);
         }
-
-        // Xác nhận Email
-        [HttpGet("confirm-email")]
-        public async Task<IActionResult> ConfirmEmail(string accountId, string token)
+        [HttpPost("resend-email-confirmation")]
+        public async Task<IActionResult> ResendEmailConfirmation(string email)
         {
-            if (accountId == null || token == null)
-                return BadRequest("Yêu cầu xác nhận không hợp lệ.");
-
-            var account = await _accountManager.FindByIdAsync(accountId);
+            var account = await _accountManager.FindByEmailAsync(email);
             if (account == null)
-                return BadRequest("Không tìm thấy người dùng.");
+            {
+                return BadRequest("Email không tồn tại.");
+            }
 
-            var result = await _accountManager.ConfirmEmailAsync(account, token);
-            if (result.Succeeded)
-                return Ok("Xác nhận email thành công.");
-            return BadRequest("Có lỗi trong quá trình xác nhận email.");
+            if (await _accountManager.IsEmailConfirmedAsync(account))
+            {
+                return BadRequest("Email đã được xác thực trước đó.");
+            }
+
+            if (!_cache.TryGetValue(email, out string storedOtp))
+            {   
+                // Sinh OTP và lưu vào MemoryCache (hết hạn sau 5 phút)
+                var otpCode = HandleString.GenerateVerifyCode(4);
+                _cache.Set(email, otpCode, TimeSpan.FromMinutes(5));
+
+                // Gửi OTP qua email
+                await _emailSender.SendEmailAsync(email, "Xác nhận Email",
+                EmailTemplateHtml.RenderEmailBody(email, otpCode));
+                return Ok("Vui lòng kiểm tra email để nhập mã xác thực.");
+            }
+
+
+            return BadRequest("Hãy thử lại sau vài phút.");
         }
+        [HttpPost("confirm-email")]
+        public IActionResult ConfirmEmail(ConfirmEmailDto model)
+        {
+            if (!_cache.TryGetValue(model.Email, out string storedOtp))
+            {
+                return BadRequest("Mã OTP không hợp lệ hoặc đã hết hạn.");
+            }
 
+            if (storedOtp != model.OtpCode)
+            {
+                return BadRequest("Mã OTP không chính xác.");
+            }
+
+            var account = _accountManager.FindByEmailAsync(model.Email).Result;
+            if (account == null)
+            {
+                return BadRequest("Email không tồn tại.");
+            }
+
+            if (account.EmailConfirmed)
+            {
+                return BadRequest("Email đã được xác thực trước đó.");
+            }
+
+            // Cập nhật trạng thái xác thực email
+            account.EmailConfirmed = true;
+            _accountManager.UpdateAsync(account);
+
+            // Xóa OTP khỏi cache sau khi xác nhận thành công
+            _cache.Remove(model.Email);
+
+            return Ok("Email đã được xác thực thành công!");
+        }
         // Đăng nhập
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto model)
         {
             var account = await _accountManager.FindByEmailAsync(model.Email);
+
             if (account == null)
                 return BadRequest("Người dùng không tồn tại.");
+
+            if(model.Password != account.PasswordHash)
+                return Unauthorized("Sai mật khẩu");
+
+            var roles=await _accountManager.GetRolesAsync(account);
+            if(!roles.Any())
+                return BadRequest("Người dùng không có quyền truy cập");
 
             if (!await _accountManager.IsEmailConfirmedAsync(account))
                 return BadRequest("Vui lòng xác nhận email trước khi đăng nhập.");
 
             var result = await _signInManager.PasswordSignInAsync(account, model.Password, false, false);
             if (result.Succeeded)
-            {
-                // Ở đây bạn có thể tạo JWT token hoặc session tùy ý
-                return Ok("Đăng nhập thành công.");
+            {   
+                return Ok(new {
+                        token=GenerateJwtToken(account.UserName,roles[0]),
+                        Message = "Đăng nhập thành công." 
+                        });
             }
             return BadRequest("Thông tin đăng nhập không hợp lệ.");
         }

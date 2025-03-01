@@ -11,6 +11,8 @@ using SneakerAPI.Infrastructure.Data;
 using SneakerAPI.Infrastructure.Repositories;
 using System.Text;
 using SneakerAPI.Core.Models;
+using SneakerAPI.Core.DTOs;
+using StackExchange.Redis;
 var  AllowHostSpecifiOrigins = "_allowHostSpecifiOrigins";
 var builder = WebApplication.CreateBuilder(args);
 Env.Load();
@@ -33,6 +35,16 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 builder.Services.AddDbContext<SneakerAPIDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SneakerAPIConnection"),b=>b.MigrationsAssembly("SneakerAPI.AdminApi")));
+
+
+var config=builder.Configuration;
+config["ConnectionStrings:SneakerAPIConnection"]=Environment.GetEnvironmentVariable("ConnectionString");
+config["EmailSettings:SmtpServer"]=Environment.GetEnvironmentVariable("ES__SmtpServer");
+config["EmailSettings:SmtpPort"]=Environment.GetEnvironmentVariable("ES__SmtpPort");
+config["EmailSettings:SmtpUser"]=Environment.GetEnvironmentVariable("ES__SmtpUser");
+config["EmailSettings:SmtpPass"]=Environment.GetEnvironmentVariable("ES__SmtpPass");
+
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
 builder.Services.AddTransient<IUnitOfWork,UnitOfWork>();
 builder.Services.AddTransient<IEmailSender,EmailSender>();
@@ -59,12 +71,10 @@ builder.Services.AddAuthentication(options =>
          IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT__Secret")))
     };
 });
-var config=builder.Configuration;
-config["ConnectionStrings:SneakerAPIConnection"]=Environment.GetEnvironmentVariable("ConnectionString");
-config["EmailSettings:SmtpServer"]=Environment.GetEnvironmentVariable("ES__SmtpServer");
-config["EmailSettings:SmtpPort"]=Environment.GetEnvironmentVariable("ES__SmtpPort");
-config["EmailSettings:SmtpUser"]=Environment.GetEnvironmentVariable("ES__SmtpUser");
-config["EmailSettings:SmtpPass"]=Environment.GetEnvironmentVariable("ES__SmtpPass");
+
+builder.Services.AddMemoryCache(); // Thêm dịch vụ MemoryCache
+builder.Services.AddSession(); // Thêm dịch vụ Session
+builder.Services.AddDistributedMemoryCache(); // Cần thiết cho Session
 // System.Console.WriteLine(config["JWT:ValidIssuer"]);
 // System.Console.WriteLine(config["JWT:ValidAudience"]);
 // System.Console.WriteLine(config["JWT:Secret"]);
