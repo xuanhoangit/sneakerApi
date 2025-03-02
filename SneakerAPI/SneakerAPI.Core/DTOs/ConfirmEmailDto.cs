@@ -1,4 +1,4 @@
-namespace SneakerAPI.Core.Dtos
+namespace SneakerAPI.Core.DTOs
 {
     public class ConfirmEmailDto
     {

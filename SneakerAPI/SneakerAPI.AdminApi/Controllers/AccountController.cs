@@ -1,12 +1,13 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
-using SneakerAPI.Core.Dtos;
+// using SneakerAPI.Core.Dtos;
 using SneakerAPI.Core.DTOs;
 using SneakerAPI.Core.Libraries;
 using SneakerAPI.Core.Models;
@@ -16,6 +17,7 @@ namespace SneakerAPI.AdminApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Area("Admin")]
     public class AccountController : ControllerBase
     {
         private readonly UserManager<IdentityAccount> _accountManager;
@@ -40,6 +42,9 @@ namespace SneakerAPI.AdminApi.Controllers
 
         private string GenerateJwtToken(string username, string role)
         {
+            try
+            {
+                
             var jwtSettings = _config.GetSection("JWT");
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"]));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -60,10 +65,52 @@ namespace SneakerAPI.AdminApi.Controllers
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+             }
+            catch (System.Exception)
+            {
+                
+                throw new Exception("An error occured while generating token");
+            }
+        }
+        [Authorize(Roles=RolesName.Admin)]
+        [HttpGet("get-account-by-email/{email}")]
+        public async Task<IActionResult> GetAccount(string email){
+            try
+            {
+                var account=await  _accountManager.FindByEmailAsync(email);
+                if(account==null)
+                    return BadRequest("Account not found");
+                return Ok(account);
+            }
+            catch (System.Exception)
+            {
+                
+                throw new Exception("An error has occurred while getting account");
+            }
+            
+        }
+        [HttpGet("get-account-by-id/{accountId}")]
+        public async Task<IActionResult> GetAccount(int accountId){
+            try
+            {
+                var account=await  _accountManager.FindByIdAsync(accountId.ToString());
+                if(account==null)
+                    return BadRequest("Account not found");
+                return Ok(account);
+            }
+            catch (System.Exception)
+            {
+                
+                throw new Exception("An error has occurred while getting account");
+            }
+            
         }
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterDto model, string role = "Staff")
+        public async Task<IActionResult> Register(RegisterDto model, string role = RolesName.Staff)
         {
+            try
+            {
+                
             if (model.Password != model.PasswordComfirm)
             {
                 return BadRequest("Password and password confirm do not match");
@@ -73,7 +120,7 @@ namespace SneakerAPI.AdminApi.Controllers
             {
                 UserName = model.Email,
                 Email = model.Email,
-                // IsEmailConfirmed = false
+                EmailConfirmed = false
             };
 
             var result = await _accountManager.CreateAsync(account, model.Password);
@@ -86,25 +133,34 @@ namespace SneakerAPI.AdminApi.Controllers
                 _cache.Set(model.Email, otpCode, TimeSpan.FromMinutes(5));
 
                 // Gửi OTP qua email
-                await _emailSender.SendEmailAsync(model.Email, "Xác nhận Email",
-                    EmailTemplateHtml.RenderEmailBody(model.Email, otpCode));
+                await _emailSender.SendEmailAsync(model.Email, "Confirm email",
+                    EmailTemplateHtml.RenderEmailRegisterBody(model.Email, otpCode));
 
-                return Ok("Đăng ký thành công. Vui lòng kiểm tra email để nhập mã xác thực.");
+                return Ok("Register successfully. Please check your email for verification code.");
             }
             return BadRequest(result.Errors);
-        }
-        [HttpPost("resend-email-confirmation")]
-        public async Task<IActionResult> ResendEmailConfirmation(string email)
-        {
-            var account = await _accountManager.FindByEmailAsync(email);
-            if (account == null)
+             }
+            catch (System.Exception)
             {
-                return BadRequest("Email không tồn tại.");
+                
+                throw new Exception("An error has occurred while registering");
+            }
+        }
+        [HttpPost("resend-email-confirmation/{email}")]
+        public async Task<IActionResult> ResendEmailConfirmation(string email)
+        {   
+            try
+            {
+           
+            var account = await _accountManager.FindByEmailAsync(email);
+            if (account == null )
+            {
+                return BadRequest("Email does not exist.");
             }
 
             if (await _accountManager.IsEmailConfirmedAsync(account))
             {
-                return BadRequest("Email đã được xác thực trước đó.");
+                return BadRequest("Your email has been previously verified.");
             }
 
             if (!_cache.TryGetValue(email, out string storedOtp))
@@ -114,17 +170,27 @@ namespace SneakerAPI.AdminApi.Controllers
                 _cache.Set(email, otpCode, TimeSpan.FromMinutes(5));
 
                 // Gửi OTP qua email
-                await _emailSender.SendEmailAsync(email, "Xác nhận Email",
-                EmailTemplateHtml.RenderEmailBody(email, otpCode));
-                return Ok("Vui lòng kiểm tra email để nhập mã xác thực.");
+                await _emailSender.SendEmailAsync(email, "Confirm email",
+                EmailTemplateHtml.RenderEmailRegisterBody(email, otpCode));
+                return Ok("Please check your email for verification code.");
             }
 
 
-            return BadRequest("Hãy thử lại sau vài phút.");
+            return BadRequest("Please try again in a few minutes.");
+                 
+            }
+            catch (System.Exception)
+            {
+                
+                throw new Exception("An error has occurred while resending email confirmation");
+            }
         }
         [HttpPost("confirm-email")]
-        public IActionResult ConfirmEmail(ConfirmEmailDto model)
-        {
+        public async Task<IActionResult> ConfirmEmail(ConfirmEmailDto model)
+        {   
+            try
+            {
+           
             if (!_cache.TryGetValue(model.Email, out string storedOtp))
             {
                 return BadRequest("Mã OTP không hợp lệ hoặc đã hết hạn.");
@@ -132,92 +198,137 @@ namespace SneakerAPI.AdminApi.Controllers
 
             if (storedOtp != model.OtpCode)
             {
-                return BadRequest("Mã OTP không chính xác.");
+                return BadRequest("OTP code is incorrect.");
             }
 
             var account = _accountManager.FindByEmailAsync(model.Email).Result;
             if (account == null)
             {
-                return BadRequest("Email không tồn tại.");
+                return BadRequest("Email does not exist.");
             }
 
             if (account.EmailConfirmed)
             {
-                return BadRequest("Email đã được xác thực trước đó.");
+                return BadRequest("Email has been previously verified.");
             }
 
             // Cập nhật trạng thái xác thực email
             account.EmailConfirmed = true;
-            _accountManager.UpdateAsync(account);
+            var a=await _accountManager.UpdateAsync(account);
 
             // Xóa OTP khỏi cache sau khi xác nhận thành công
             _cache.Remove(model.Email);
 
-            return Ok("Email đã được xác thực thành công!");
+            return Ok("Email has been successfully verified!");
+                 
+            }
+            catch (System.Exception)
+            {
+                
+                throw new Exception("An error has occurred while confirming email");
+            }
         }
         // Đăng nhập
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto model)
         {
+            try
+            {
+       
             var account = await _accountManager.FindByEmailAsync(model.Email);
 
             if (account == null)
-                return BadRequest("Người dùng không tồn tại.");
+                return BadRequest("Account does not exist.");
 
-            if(model.Password != account.PasswordHash)
-                return Unauthorized("Sai mật khẩu");
-
+          
             var roles=await _accountManager.GetRolesAsync(account);
             if(!roles.Any())
-                return BadRequest("Người dùng không có quyền truy cập");
+                return BadRequest("User does not have access");
 
             if (!await _accountManager.IsEmailConfirmedAsync(account))
-                return BadRequest("Vui lòng xác nhận email trước khi đăng nhập.");
+                return BadRequest("Please confirm email before logging in.");
 
             var result = await _signInManager.PasswordSignInAsync(account, model.Password, false, false);
             if (result.Succeeded)
             {   
                 return Ok(new {
                         token=GenerateJwtToken(account.UserName,roles[0]),
-                        Message = "Đăng nhập thành công." 
+                        Message = "Login successful." 
                         });
             }
-            return BadRequest("Thông tin đăng nhập không hợp lệ.");
+            return BadRequest("Invalid login information.");
+                     
+            }
+            catch (System.Exception)
+            {
+                
+                throw new Exception("An error has occurred while logging in");
+            }
         }
 
-        // Quên mật khẩu
         [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPassword(ForgotPasswordDto model)
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto model)
         {
-            var account = await _accountManager.FindByEmailAsync(model.Email);
-            if (account == null || !await _accountManager.IsEmailConfirmedAsync(account))
+            try
             {
-                // Không tiết lộ thông tin chi tiết về việc người dùng không tồn tại
-                return Ok("Vui lòng kiểm tra email để thực hiện đặt lại mật khẩu.");
+         
+            var account = await _accountManager.FindByEmailAsync(model.Email);
+            var role= await _accountManager.GetRolesAsync(account);
+            // if(!role.Contains(RolesName.Customer))
+            //     return BadRequest("You do not have access");
+
+            if (account == null)
+            {
+                // Không tiết lộ thông tin tài khoản có tồn tại hay không
+                return Ok("Password has been emailed to youuu");
             }
+            var password = HandleString.GenerateRandomString(16);
+            // cập nhật account với mật khẩu mới
+            account.PasswordHash = _accountManager.PasswordHasher.HashPassword(account, password);
+            await _accountManager.UpdateAsync(account);
 
-            // Sinh token reset mật khẩu
-            var token = await _accountManager.GeneratePasswordResetTokenAsync(account);
-            var resetLink = Url.Action(nameof(ResetPassword), "Account", new { token, email = model.Email }, Request.Scheme);
-
-            await _emailSender.SendEmailAsync(model.Email, "Đặt lại mật khẩu", 
-                $"Đặt lại mật khẩu bằng cách nhấp vào link sau: <a href='{resetLink}'>Đặt lại mật khẩu</a>");
-            
-            return Ok("Vui lòng kiểm tra email để đặt lại mật khẩu.");
+            await _emailSender.SendEmailAsync(model.Email, "Reset password",
+                EmailTemplateHtml.RenderEmailForgotPasswordBody(model.Email, password));
+            return Ok("Password has been emailed to you");
+                   
+            }
+            catch (System.Exception)
+            {
+                
+                throw new Exception("An error has occurred while sending email");
+            }
         }
 
         // Đặt lại mật khẩu
-        [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPassword(ResetPasswordDto model)
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ResetPassword(ChangePasswordDto model)
         {
+            try
+            {
+        
+            if(model.ConfirmNewPassword != model.NewPassword)
+                return BadRequest("Your new password and confirm password do not match.");
+
             var account = await _accountManager.FindByEmailAsync(model.Email);
             if (account == null)
-                return Ok("Đặt lại mật khẩu thành công."); // Không tiết lộ thông tin người dùng không tồn tại
+                return Ok("Wrong account name or password"); // Không tiết lộ thông tin người dùng không tồn tại
 
-            var result = await _accountManager.ResetPasswordAsync(account, model.Token, model.NewPassword);
-            if (result.Succeeded)
-                return Ok("Mật khẩu đã được thay đổi thành công.");
+            var result = await _accountManager.ChangePasswordAsync(account, model.Password, model.NewPassword);
+    
+            if (result.Succeeded){
+                var content="You just changed your password at"+ DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
+                await _emailSender.SendEmailAsync(model.Email, "Password changed",
+                EmailTemplateHtml.RenderEmailNotificationBody(model.Email, content));
+                return Ok("Password changed successfully.");
+            }
             return BadRequest(result.Errors);
+                    
+            }
+            catch (System.Exception)
+            {
+                
+                throw new Exception("An error has occurred while resetting password");
+            }
         }
     }
 }

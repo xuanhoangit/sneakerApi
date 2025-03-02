@@ -37,6 +37,13 @@ builder.Services.AddDbContext<SneakerAPIDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SneakerAPIConnection"),b=>b.MigrationsAssembly("SneakerAPI.AdminApi")));
 
 
+
+builder.Services.AddTransient<IUnitOfWork,UnitOfWork>();
+builder.Services.AddTransient<IEmailSender,EmailSender>();
+builder.Services.AddIdentity<IdentityAccount, IdentityRole<int>>()
+    .AddEntityFrameworkStores<SneakerAPIDbContext>()
+    .AddDefaultTokenProviders();
+//*************** Tất cả config**
 var config=builder.Configuration;
 config["ConnectionStrings:SneakerAPIConnection"]=Environment.GetEnvironmentVariable("ConnectionString");
 config["EmailSettings:SmtpServer"]=Environment.GetEnvironmentVariable("ES__SmtpServer");
@@ -45,14 +52,11 @@ config["EmailSettings:SmtpUser"]=Environment.GetEnvironmentVariable("ES__SmtpUse
 config["EmailSettings:SmtpPass"]=Environment.GetEnvironmentVariable("ES__SmtpPass");
 
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
-
-builder.Services.AddTransient<IUnitOfWork,UnitOfWork>();
-builder.Services.AddTransient<IEmailSender,EmailSender>();
-builder.Services.AddIdentity<IdentityAccount, IdentityRole<int>>()
-    .AddEntityFrameworkStores<SneakerAPIDbContext>()
-    .AddDefaultTokenProviders();
-
 // Cấu hình Authentication với JWT
+// builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
+// {
+//     options.TokenLifespan = TimeSpan.FromMinutes(5); // Token chỉ có hiệu lực trong 5 phút
+// });
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -71,7 +75,7 @@ builder.Services.AddAuthentication(options =>
          IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT__Secret")))
     };
 });
-
+//End Cònig
 builder.Services.AddMemoryCache(); // Thêm dịch vụ MemoryCache
 builder.Services.AddSession(); // Thêm dịch vụ Session
 builder.Services.AddDistributedMemoryCache(); // Cần thiết cho Session
