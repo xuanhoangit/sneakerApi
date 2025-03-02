@@ -17,7 +17,7 @@ namespace SneakerAPI.AdminApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Area("Admin")]
+    [Area("Dashboard")]
     public class AccountController : ControllerBase
     {
         private readonly UserManager<IdentityAccount> _accountManager;
@@ -72,6 +72,69 @@ namespace SneakerAPI.AdminApi.Controllers
                 throw new Exception("An error occured while generating token");
             }
         }
+        
+        
+        [HttpPut("unlock-account/{email}")]
+        [Authorize(Roles=RolesName.Admin)]
+        public async Task<IActionResult> UnlockAccount(string email)
+        {
+            try
+            {
+                var account =await  _accountManager.FindByEmailAsync(email);
+                if (account == null)
+                    return BadRequest("Account does not exist.");
+
+                account.LockoutEnabled = false;
+                account.LockoutEnd = null;
+                await _accountManager.UpdateAsync(account);
+                return Ok("Account has been unlocked.");
+            }
+            catch (System.Exception)
+            {
+                
+                throw new Exception("An error has occurred while blocking account");
+            }
+        }
+       
+        [HttpPut("block-account/{email}")]
+        [Authorize(Roles=RolesName.Admin)]
+        public async Task<IActionResult> BlockAccount(string email)
+        {
+            try
+            {
+                var account =await  _accountManager.FindByEmailAsync(email);
+                if (account == null)
+                    return BadRequest("Account does not exist.");
+
+                account.LockoutEnabled = true;
+                account.LockoutEnd = DateTimeOffset.MaxValue;
+                await _accountManager.UpdateAsync(account);
+                return Ok("Account has been blocked.");
+            }
+            catch (System.Exception)
+            {
+                
+                throw new Exception("An error has occurred while blocking account");
+            }
+        }
+       
+        [Authorize(Roles=RolesName.Admin)]
+        [HttpGet("get-all-accounts/{role}")]
+        public async Task<IActionResult> GetAccountsByRole(string role){
+            try
+            {
+                var accounts= (await _accountManager.GetUsersInRoleAsync(role)).Take(10);
+                if(accounts==null)
+                    return BadRequest("Have not an account!");
+                return Ok(accounts);
+            }
+            catch (System.Exception)
+            {
+                
+                throw new Exception("An error has occurred while getting account");
+            }
+            
+        }
         [Authorize(Roles=RolesName.Admin)]
         [HttpGet("get-account-by-email/{email}")]
         public async Task<IActionResult> GetAccount(string email){
@@ -89,6 +152,7 @@ namespace SneakerAPI.AdminApi.Controllers
             }
             
         }
+        [Authorize(Roles=RolesName.Admin)]
         [HttpGet("get-account-by-id/{accountId}")]
         public async Task<IActionResult> GetAccount(int accountId){
             try
