@@ -10,10 +10,11 @@
 using System;
 using System.Reflection;
 
+[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("your-unique-guid")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("SneakerAPI.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+be94e90bdfd6f8d95670c3decb3fdcfb963cef4e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+93b8aeaed7f115942f548bc91ee85a5a26c3cff0")]
 [assembly: System.Reflection.AssemblyProductAttribute("SneakerAPI.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SneakerAPI.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

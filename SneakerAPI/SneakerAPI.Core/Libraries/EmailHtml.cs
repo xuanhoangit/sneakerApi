@@ -1,7 +1,7 @@
 namespace SneakerAPI.Core.Libraries;
 public static class EmailTemplateHtml
 {
-public static string RenderEmailNotificationBody(string username,string content){
+public static string RenderEmailNotificationBody(string username,string head,string content){
 return  $@"
 <!DOCTYPE html>
 <html>
@@ -18,7 +18,7 @@ return  $@"
                     <!-- Header -->
                     <tr>
                         <td align='center' style='padding: 20px 0;'>
-                            <h1 style='margin: 0; font-family: Arial, sans-serif; color: #333;'>Security warning!</h1>
+                            <h1 style='margin: 0; font-family: Arial, sans-serif; color: #333;'>{head}</h1>
                         </td>
                     </tr>
                     <!-- Body -->

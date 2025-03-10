@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using DotNetEnv;
@@ -12,7 +11,9 @@ using SneakerAPI.Infrastructure.Repositories;
 using System.Text;
 using SneakerAPI.Core.Models;
 using SneakerAPI.Core.DTOs;
-using StackExchange.Redis;
+using SneakerAPI.Core.Interfaces.UserInterfaces;
+using SneakerAPI.Infrastructure.Repositories.UserRepositories;
+
 var  AllowHostSpecifiOrigins = "_allowHostSpecifiOrigins";
 var builder = WebApplication.CreateBuilder(args);
 Env.Load();
@@ -40,6 +41,7 @@ builder.Services.AddDbContext<SneakerAPIDbContext>(options =>
 
 builder.Services.AddTransient<IUnitOfWork,UnitOfWork>();
 builder.Services.AddTransient<IEmailSender,EmailSender>();
+builder.Services.AddTransient<IJwtService,JwtService>();
 builder.Services.AddIdentity<IdentityAccount, IdentityRole<int>>()
     .AddEntityFrameworkStores<SneakerAPIDbContext>()
     .AddDefaultTokenProviders();
@@ -53,20 +55,14 @@ config["EmailSettings:SmtpPass"]=Environment.GetEnvironmentVariable("ES__SmtpPas
 
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 // Cấu hình Authentication với JWT
-// builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
-// {
-//     options.TokenLifespan = TimeSpan.FromMinutes(5); // Token chỉ có hiệu lực trong 5 phút
-// });
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
+builder.Services.AddAuthentication()
 .AddJwtBearer(options =>
-{
+{   
     options.TokenValidationParameters = new TokenValidationParameters
     {
          ValidateIssuer = true,
+          // Cấu hình RoleClaimType đúng với token của bạn
+            RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role",
          ValidateAudience = true,
          ValidateLifetime = true,
          ValidateIssuerSigningKey = true,
@@ -75,18 +71,12 @@ builder.Services.AddAuthentication(options =>
          IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT__Secret")))
     };
 });
+
 //End Cònig
 builder.Services.AddMemoryCache(); // Thêm dịch vụ MemoryCache
 builder.Services.AddSession(); // Thêm dịch vụ Session
 builder.Services.AddDistributedMemoryCache(); // Cần thiết cho Session
-// System.Console.WriteLine(config["JWT:ValidIssuer"]);
-// System.Console.WriteLine(config["JWT:ValidAudience"]);
-// System.Console.WriteLine(config["JWT:Secret"]);
-// System.Console.WriteLine(config["EmailSettings:SmtpServer"]);
-// System.Console.WriteLine(config["EmailSettings:SmtpPort"]);
-// System.Console.WriteLine(config["EmailSettings:SmtpUser"]);
-// System.Console.WriteLine(config["EmailSettings:SmtpPass"]);
-// System.Console.WriteLine(config["ConnectionStrings:SneakerAPIConnection"]);
+
 var app = builder.Build();
 // Thực hiện seed Role và tài khoản Admin
 using (var scope = app.Services.CreateScope())

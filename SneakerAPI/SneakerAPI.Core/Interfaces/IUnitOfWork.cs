@@ -23,7 +23,7 @@ public interface IUnitOfWork
     IProductColorRepository ProductColor { get; }
     IProductColorSizeRepository ProductColorSize { get; }
     IProductCategoryRepository ProductCategory { get; }
-    //IUser
+
     ICustomerInfoRepository CustomerInfo { get; }
     IStaffInfoRepository StaffInfo { get; }
     IAddressRepository Address { get; }

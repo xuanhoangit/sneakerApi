@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using ProductService.Infrastructure.Repositories;
 using SneakerAPI.Core.Interfaces;
 using SneakerAPI.Core.Interfaces.OrderInterfaces;
@@ -12,6 +13,7 @@ namespace SneakerAPI.Infrastructure.Repositories;
 public class UnitOfWork : IUnitOfWork
 {   
     private readonly SneakerAPIDbContext _db;
+    // private readonly IConfiguration _config;
     public UnitOfWork(SneakerAPIDbContext db)
     {
         _db=db;
@@ -30,9 +32,7 @@ public class UnitOfWork : IUnitOfWork
         ProductColor = new ProductColorRepository(_db);
         ProductColorSize = new ProductColorSizeRepository(_db);
         ProductCategory = new ProductCategoryRepository(_db);
-        //User
-        // Account = new AccountRepository(_db);
-        // Role = new RoleRepository(_db);
+
         CustomerInfo = new CustomerInfoRepository(_db);
         StaffInfo = new StaffInfoRepository(_db);
         Address = new AddressRepository(_db);
@@ -63,6 +63,7 @@ public class UnitOfWork : IUnitOfWork
     public IProductColorSizeRepository ProductColorSize {get;}
 
     public IProductCategoryRepository ProductCategory {get;}
+
 
 
 

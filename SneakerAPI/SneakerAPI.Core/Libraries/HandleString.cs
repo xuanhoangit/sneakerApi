@@ -3,10 +3,10 @@ using System;
 namespace SneakerAPI.Core.Libraries;
     public class HandleString
 {   
-    public static string GenerateVerifyCode(int length=6)
+    public static string GenerateVerifyCode()
     {
         Random random = new Random();
-        string numberString = random.Next(100000, 999999).ToString();
+        string numberString = random.Next(1000, 9999).ToString();
         return numberString;
     }
     public static string GenerateRandomString(int length)

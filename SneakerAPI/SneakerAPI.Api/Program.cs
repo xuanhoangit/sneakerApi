@@ -1,18 +1,18 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using DotNetEnv;
 
-using SneakerAPI.Api.Controllers.ProductControllers;
 using SneakerAPI.Core.Interfaces;
 using SneakerAPI.Infrastructure.Data;
 using SneakerAPI.Infrastructure.Repositories;
 using System.Text;
 using SneakerAPI.Core.Models;
 using SneakerAPI.Core.DTOs;
-using StackExchange.Redis;
+using SneakerAPI.Core.Interfaces.UserInterfaces;
+using SneakerAPI.Infrastructure.Repositories.UserRepositories;
+
 var  AllowHostSpecifiOrigins = "_allowHostSpecifiOrigins";
 var builder = WebApplication.CreateBuilder(args);
 Env.Load();
@@ -25,9 +25,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: AllowHostSpecifiOrigins,
                       policy  =>
                       {
-                          policy.WithOrigins("http://127.0.0.1:5500").AllowAnyMethod()
-                                                                            .AllowAnyHeader()
-                                                                            .AllowCredentials();
+                            policy.WithOrigins("http://127.0.0.1:5500")
+                            .AllowAnyHeader()
+                            .AllowAnyMethod()
+                            .AllowCredentials(); // Only if using cookies/auth headers
                       });
 });
 builder.Services.AddEndpointsApiExplorer();
@@ -40,11 +41,21 @@ builder.Services.AddDbContext<SneakerAPIDbContext>(options =>
 
 builder.Services.AddTransient<IUnitOfWork,UnitOfWork>();
 builder.Services.AddTransient<IEmailSender,EmailSender>();
+builder.Services.AddTransient<IJwtService,JwtService>();
 builder.Services.AddIdentity<IdentityAccount, IdentityRole<int>>()
     .AddEntityFrameworkStores<SneakerAPIDbContext>()
     .AddDefaultTokenProviders();
+
 //*************** Tất cả config**
 var config=builder.Configuration;
+builder.Services.AddAuthentication()
+    .AddCookie()
+    .AddGoogle(options =>
+    {
+        options.ClientId = config["Authentication:Google:ClientId"];
+        options.ClientSecret = config["Authentication:Google:ClientSecret"];
+        options.CallbackPath="/signin-google";
+    });
 config["ConnectionStrings:SneakerAPIConnection"]=Environment.GetEnvironmentVariable("ConnectionString");
 config["EmailSettings:SmtpServer"]=Environment.GetEnvironmentVariable("ES__SmtpServer");
 config["EmailSettings:SmtpPort"]=Environment.GetEnvironmentVariable("ES__SmtpPort");
@@ -52,16 +63,8 @@ config["EmailSettings:SmtpUser"]=Environment.GetEnvironmentVariable("ES__SmtpUse
 config["EmailSettings:SmtpPass"]=Environment.GetEnvironmentVariable("ES__SmtpPass");
 
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
-// Cấu hình Authentication với JWT
-// builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
-// {
-//     options.TokenLifespan = TimeSpan.FromMinutes(5); // Token chỉ có hiệu lực trong 5 phút
-// });
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
+
+builder.Services.AddAuthentication()
 .AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
@@ -69,6 +72,8 @@ builder.Services.AddAuthentication(options =>
          ValidateIssuer = true,
          ValidateAudience = true,
          ValidateLifetime = true,
+          // Cấu hình RoleClaimType đúng với token của bạn
+            RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role",
          ValidateIssuerSigningKey = true,
          ValidIssuer = Environment.GetEnvironmentVariable("JWT__ValidIssuer"),
          ValidAudience = Environment.GetEnvironmentVariable("JWT__ValidAudience"),
@@ -76,17 +81,11 @@ builder.Services.AddAuthentication(options =>
     };
 });
 //End Cònig
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddMemoryCache(); // Thêm dịch vụ MemoryCache
 builder.Services.AddSession(); // Thêm dịch vụ Session
 builder.Services.AddDistributedMemoryCache(); // Cần thiết cho Session
-// System.Console.WriteLine(config["JWT:ValidIssuer"]);
-// System.Console.WriteLine(config["JWT:ValidAudience"]);
-// System.Console.WriteLine(config["JWT:Secret"]);
-// System.Console.WriteLine(config["EmailSettings:SmtpServer"]);
-// System.Console.WriteLine(config["EmailSettings:SmtpPort"]);
-// System.Console.WriteLine(config["EmailSettings:SmtpUser"]);
-// System.Console.WriteLine(config["EmailSettings:SmtpPass"]);
-// System.Console.WriteLine(config["ConnectionStrings:SneakerAPIConnection"]);
+
 var app = builder.Build();
 
 

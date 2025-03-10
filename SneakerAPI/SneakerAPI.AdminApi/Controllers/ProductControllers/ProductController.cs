@@ -6,6 +6,7 @@ using SneakerAPI.Core.Models.ProductEntities;
 namespace SneakerAPI.AdminApi.Controllers.ProductControllers
 {   
     [ApiController]
+    [Area("Admin")]
     [Route("api/[Controller]")]
     public class ProductController : BaseController
     {
