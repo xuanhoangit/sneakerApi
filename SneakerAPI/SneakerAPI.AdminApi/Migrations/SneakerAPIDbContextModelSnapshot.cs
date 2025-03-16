@@ -436,6 +436,9 @@ namespace SneakerAPI.AdminApi.Migrations
                     b.Property<int>("ProductColor__ProductId")
                         .HasColumnType("int");
 
+                    b.Property<int>("ProductColor__Status")
+                        .HasColumnType("int");
+
                     b.HasKey("ProductColor__Id");
 
                     b.HasIndex("ProductColor__ColorId");
@@ -789,7 +792,7 @@ namespace SneakerAPI.AdminApi.Migrations
             modelBuilder.Entity("SneakerAPI.Core.Models.ProductEntities.ProductColorSize", b =>
                 {
                     b.HasOne("SneakerAPI.Core.Models.ProductEntities.ProductColor", "ProductColor")
-                        .WithMany("ProductColorSizes")
+                        .WithMany()
                         .HasForeignKey("ProductColorSize__ProductColorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -850,11 +853,6 @@ namespace SneakerAPI.AdminApi.Migrations
             modelBuilder.Entity("SneakerAPI.Core.Models.ProductEntities.Product", b =>
                 {
                     b.Navigation("ProductColors");
-                });
-
-            modelBuilder.Entity("SneakerAPI.Core.Models.ProductEntities.ProductColor", b =>
-                {
-                    b.Navigation("ProductColorSizes");
                 });
 #pragma warning restore 612, 618
         }

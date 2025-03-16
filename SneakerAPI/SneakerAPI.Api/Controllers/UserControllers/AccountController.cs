@@ -1,18 +1,20 @@
-using System.IdentityModel.Tokens.Jwt;
+
 using System.Security.Claims;
-using System.Text;
 using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.IdentityModel.Tokens;
-// using SneakerAPI.Core.Dtos;
+
+
 using SneakerAPI.Core.DTOs;
 using SneakerAPI.Core.Interfaces.UserInterfaces;
 using SneakerAPI.Core.Libraries;
 using SneakerAPI.Core.Models;
+using SneakerAPI.Core.Models.UserEntities;
+using SneakerAPI.Infrastructure.Repositories;
 
 
 namespace SneakerAPI.Api.Controllers.UserControllers
@@ -24,28 +26,32 @@ namespace SneakerAPI.Api.Controllers.UserControllers
     [ApiController]
     [Route("[Area]/api/[controller]")]
     [Area("Client")]
-    public class AccountController : ControllerBase
-    {
+    public class AccountController : BaseController
+    {   
+        private static Dictionary<string,string> _refreshtoken= new ();
         private readonly UserManager<IdentityAccount> _accountManager;
         private readonly SignInManager<IdentityAccount> _signInManager;
         private readonly IEmailSender _emailSender;
         private readonly IConfiguration _config;
         private readonly IMemoryCache _cache;
-        private readonly IJwtService _accountRepository;
+        private readonly IJwtService _jwtService;
+        private readonly UnitOfWork _uow;
 
         public AccountController(UserManager<IdentityAccount> accountManager,
                                  SignInManager<IdentityAccount> signInManager,
                                  IEmailSender emailSender,
                                  IConfiguration config,
                                  IMemoryCache cache,
-                                 IJwtService accountRepository)
+                                 IJwtService jwtService,
+                                 UnitOfWork uow):base (uow)
         {
             _accountManager = accountManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
             _config = config;
             _cache = cache;
-            _accountRepository = accountRepository;
+            _jwtService = jwtService;
+            _uow = uow;
         }
         private object CurrentUser()
         {   
@@ -87,8 +93,38 @@ namespace SneakerAPI.Api.Controllers.UserControllers
             return Ok(CurrentUser());
         }          
     
+            [HttpPost("refresh")]
+    public async Task<IActionResult> RefreshToken([FromBody] TokenResponse model)
+    {   
+        try
+        {
+ 
+        var username = _refreshtoken.FirstOrDefault(predicate: x => x.Value == model.RefreshToken).Key;
+        if (string.IsNullOrEmpty(username))
+            return Unauthorized("Refresh Token is not valid!");
+        var account=await _accountManager.FindByEmailAsync(username);
+        var roles=await _accountManager.GetRolesAsync(account);
+        var newTokens = (TokenResponse)_jwtService.GenerateJwtToken(username,roles);
+        
+        // Cập nhật refresh token mới
+        _refreshtoken[username] = newTokens.RefreshToken;
 
+        return Ok(newTokens);
+                   
+        }
+        catch (System.Exception)
+        {
+            
+            throw;
+        }
+    }
 
+    private bool AutoCreateInfo(int account_id){
+        return _uow.CustomerInfo.Add(new CustomerInfo{
+                            CustomerInfo__AccountId=account_id,
+                            CustomerInfo__Avatar="default.jpg"
+                        });
+    }
         [HttpPost("set-password")]
         public async Task<IActionResult> SetPassword(ChangePasswordDto model)
         {
@@ -148,24 +184,33 @@ namespace SneakerAPI.Api.Controllers.UserControllers
                     if(result.Succeeded)
                     {
                         await _accountManager.AddToRoleAsync(newAccount, RolesName.Customer);
+                        //Auto create customer info
+                        AutoCreateInfo(newAccount.Id);
                         await _signInManager.SignInAsync(newAccount, isPersistent: true);
 
                         await _emailSender.SendEmailAsync(newAccount.Email, "Notification",
                             EmailTemplateHtml.RenderEmailNotificationBody(newAccount.Email,"Login Notice", "You have just successfully logged into the Sneaker Luxury Store app."));
                         return Ok(
-                                _accountRepository.GenerateJwtToken(newAccount.UserName, new List<string> { RolesName.Customer })
+                                _jwtService.GenerateJwtToken(newAccount.UserName, new List<string> { RolesName.Customer })
                                );
                     }
                 }
 
                 // Đăng nhập user vào hệ thống
                 var roles=await _accountManager.GetRolesAsync(account);
+                if(!roles.Contains(RolesName.Customer)){
+                    var result=await _accountManager.AddToRoleAsync(account,RolesName.Customer);
+                    if(result.Succeeded){
+                        //Auto create customer info
+                        AutoCreateInfo(account.Id);
+                    }
+                }
                 await _signInManager.SignInAsync(account, isPersistent: true);
-                return Ok(_accountRepository.GenerateJwtToken(account.UserName,roles));
+                return Ok(_jwtService.GenerateJwtToken(account.UserName,roles));
             }
             catch (Exception ex)
             {
-                return BadRequest(new { error = "Google token không hợp lệ!", message = ex.Message });
+                return BadRequest(new { error = "Google token is not valid!", message = ex.Message });
             }
         }
 
@@ -175,7 +220,9 @@ namespace SneakerAPI.Api.Controllers.UserControllers
         {
             try
             {
-                
+            if(!ModelState.IsValid){
+                return BadRequest("Invalid your input");
+            } 
             var accountExist = await _accountManager.FindByEmailAsync(model.Email);
             if (accountExist != null)
             {   
@@ -183,7 +230,13 @@ namespace SneakerAPI.Api.Controllers.UserControllers
                 if(roles.Contains(RolesName.Customer))
                     return BadRequest("Email already exists. You are granted access as a customer");
 
-                await _accountManager.AddToRoleAsync(accountExist, RolesName.Customer);
+                if(!roles.Contains(RolesName.Customer)){
+                    var rs=await _accountManager.AddToRoleAsync(accountExist,RolesName.Customer);
+                    if(rs.Succeeded){
+                        //Auto create customer info
+                        AutoCreateInfo(accountExist.Id);
+                    }
+                }
                 return Ok("Email already exists. You are granted access as a customer");
             }
             if (model.Password != model.PasswordComfirm)
@@ -202,7 +255,8 @@ namespace SneakerAPI.Api.Controllers.UserControllers
             if (result.Succeeded)
             {
                 await _accountManager.AddToRoleAsync(account, RolesName.Customer);
-
+                //Auto create customer info
+                AutoCreateInfo(account.Id);
                 // Sinh OTP và lưu vào MemoryCache (hết hạn sau 5 phút)
                 var otpCode = HandleString.GenerateVerifyCode();
                 _cache.Set(model.Email, otpCode, TimeSpan.FromMinutes(5));
@@ -327,7 +381,7 @@ namespace SneakerAPI.Api.Controllers.UserControllers
             if (result.Succeeded)
             {   
                 
-                return  Ok(_accountRepository.GenerateJwtToken(account.UserName,roles));
+                return  Ok(_jwtService.GenerateJwtToken(account.UserName,roles));
             }
             return BadRequest("Invalid login information.");
                      

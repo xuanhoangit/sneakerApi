@@ -6,7 +6,6 @@ namespace SneakerAPI.Core.Models.Filters
     }
     public class ProductFilter
     {   
-        public int Page {get;set;}=1;
         public string? SearchString { get; set; }
         public int[]? ColorIds { get; set; }
         public List<int>? BrandIds { get; set; }

@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Microsoft.AspNetCore.Http;
 namespace SneakerAPI.Core.Interfaces;
 public interface IRepository<TEntity> where TEntity : class 
 {
@@ -19,4 +20,5 @@ public interface IRepository<TEntity> where TEntity : class
         bool Update(TEntity entity);
         bool Remove(TEntity entity);
         bool RemoveRange(IEnumerable<TEntity> entities);
+        // bool UploadFile(IFormFile file,string filePath);
 }

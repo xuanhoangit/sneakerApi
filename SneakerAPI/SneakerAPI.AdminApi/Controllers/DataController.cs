@@ -79,26 +79,26 @@ public class DataGenerator
     {
         return new List<Brand>
         {
-            new Brand { Brand__Name = "Brand A", Brand__Description = "High quality brand A", Brand__Logo = "logoA.png", Brand__CreatedByAccountId = accountId, Brand__Status = true },
-            new Brand { Brand__Name = "Brand B", Brand__Description = "Premium brand B", Brand__Logo = "logoB.png", Brand__CreatedByAccountId = accountId, Brand__Status = false },
-            new Brand { Brand__Name = "Brand C", Brand__Description = "Luxury brand C", Brand__Logo = "logoC.png", Brand__CreatedByAccountId = accountId, Brand__Status = true },
-            new Brand { Brand__Name = "Brand D", Brand__Description = "Affordable brand D", Brand__Logo = "logoD.png", Brand__CreatedByAccountId = accountId, Brand__Status = false },
-            new Brand { Brand__Name = "Brand E", Brand__Description = "Reliable brand E", Brand__Logo = "logoE.png", Brand__CreatedByAccountId = accountId, Brand__Status = true },
-            new Brand { Brand__Name = "Brand F", Brand__Description = "Trusted brand F", Brand__Logo = "logoF.png", Brand__CreatedByAccountId = accountId, Brand__Status = false },
-            new Brand { Brand__Name = "Brand G", Brand__Description = "Quality brand G", Brand__Logo = "logoG.png", Brand__CreatedByAccountId = accountId, Brand__Status = true },
-            new Brand { Brand__Name = "Brand H", Brand__Description = "Popular brand H", Brand__Logo = "logoH.png", Brand__CreatedByAccountId = accountId, Brand__Status = false },
-            new Brand { Brand__Name = "Brand I", Brand__Description = "Innovative brand I", Brand__Logo = "logoI.png", Brand__CreatedByAccountId = accountId, Brand__Status = true },
-            new Brand { Brand__Name = "Brand J", Brand__Description = "Exclusive brand J", Brand__Logo = "logoJ.png", Brand__CreatedByAccountId = accountId, Brand__Status = false },
-            new Brand { Brand__Name = "Brand K", Brand__Description = "Top-rated brand K", Brand__Logo = "logoK.png", Brand__CreatedByAccountId = accountId, Brand__Status = true },
-            new Brand { Brand__Name = "Brand L", Brand__Description = "Leading brand L", Brand__Logo = "logoL.png", Brand__CreatedByAccountId = accountId, Brand__Status = false },
-            new Brand { Brand__Name = "Brand M", Brand__Description = "Popular brand M", Brand__Logo = "logoM.png", Brand__CreatedByAccountId = accountId, Brand__Status = true },
-            new Brand { Brand__Name = "Brand N", Brand__Description = "Affordable brand N", Brand__Logo = "logoN.png", Brand__CreatedByAccountId = accountId, Brand__Status = false },
-            new Brand { Brand__Name = "Brand O", Brand__Description = "Trusted brand O", Brand__Logo = "logoO.png", Brand__CreatedByAccountId = accountId, Brand__Status = true },
-            new Brand { Brand__Name = "Brand P", Brand__Description = "Premium brand P", Brand__Logo = "logoP.png", Brand__CreatedByAccountId = accountId, Brand__Status = false },
-            new Brand { Brand__Name = "Brand Q", Brand__Description = "Exclusive brand Q", Brand__Logo = "logoQ.png", Brand__CreatedByAccountId = accountId, Brand__Status = true },
-            new Brand { Brand__Name = "Brand R", Brand__Description = "Reliable brand R", Brand__Logo = "logoR.png", Brand__CreatedByAccountId = accountId, Brand__Status = false },
-            new Brand { Brand__Name = "Brand S", Brand__Description = "Top-rated brand S", Brand__Logo = "logoS.png", Brand__CreatedByAccountId = accountId, Brand__Status = true },
-            new Brand { Brand__Name = "Brand T", Brand__Description = "Innovative brand T", Brand__Logo = "logoT.png", Brand__CreatedByAccountId = accountId, Brand__Status = false }
+            new Brand { Brand__Name = "Brand A", Brand__Description = "High quality brand A", Brand__Logo = "logoA.png"/*, Brand__CreatedByAccountId = accountId*/, Brand__Status = true },
+            new Brand { Brand__Name = "Brand B", Brand__Description = "Premium brand B", Brand__Logo = "logoB.png"/*, Brand__CreatedByAccountId = accountId*/, Brand__Status = false },
+            new Brand { Brand__Name = "Brand C", Brand__Description = "Luxury brand C", Brand__Logo = "logoC.png"/*, Brand__CreatedByAccountId = accountId*/, Brand__Status = true },
+            new Brand { Brand__Name = "Brand D", Brand__Description = "Affordable brand D", Brand__Logo = "logoD.png"/*, Brand__CreatedByAccountId = accountId*/, Brand__Status = false },
+            new Brand { Brand__Name = "Brand E", Brand__Description = "Reliable brand E", Brand__Logo = "logoE.png"/*, Brand__CreatedByAccountId = accountId*/, Brand__Status = true },
+            new Brand { Brand__Name = "Brand F", Brand__Description = "Trusted brand F", Brand__Logo = "logoF.png"/*, Brand__CreatedByAccountId = accountId*/, Brand__Status = false },
+            new Brand { Brand__Name = "Brand G", Brand__Description = "Quality brand G", Brand__Logo = "logoG.png"/*, Brand__CreatedByAccountId = accountId*/, Brand__Status = true },
+            new Brand { Brand__Name = "Brand H", Brand__Description = "Popular brand H", Brand__Logo = "logoH.png"/*, Brand__CreatedByAccountId = accountId*/, Brand__Status = false },
+            new Brand { Brand__Name = "Brand I", Brand__Description = "Innovative brand I", Brand__Logo = "logoI.png"/*, Brand__CreatedByAccountId = accountId*/, Brand__Status = true },
+            new Brand { Brand__Name = "Brand J", Brand__Description = "Exclusive brand J", Brand__Logo = "logoJ.png"/*, Brand__CreatedByAccountId = accountId*/, Brand__Status = false },
+            new Brand { Brand__Name = "Brand K", Brand__Description = "Top-rated brand K", Brand__Logo = "logoK.png"/*, Brand__CreatedByAccountId = accountId*/, Brand__Status = true },
+            new Brand { Brand__Name = "Brand L", Brand__Description = "Leading brand L", Brand__Logo = "logoL.png"/*, Brand__CreatedByAccountId = accountId*/, Brand__Status = false },
+            new Brand { Brand__Name = "Brand M", Brand__Description = "Popular brand M", Brand__Logo = "logoM.png"/*, Brand__CreatedByAccountId = accountId*/, Brand__Status = true },
+            new Brand { Brand__Name = "Brand N", Brand__Description = "Affordable brand N", Brand__Logo = "logoN.png"/*, Brand__CreatedByAccountId = accountId*/, Brand__Status = false },
+            new Brand { Brand__Name = "Brand O", Brand__Description = "Trusted brand O", Brand__Logo = "logoO.png"/*, Brand__CreatedByAccountId = accountId*/, Brand__Status = true },
+            new Brand { Brand__Name = "Brand P", Brand__Description = "Premium brand P", Brand__Logo = "logoP.png"/*, Brand__CreatedByAccountId = accountId*/, Brand__Status = false },
+            new Brand { Brand__Name = "Brand Q", Brand__Description = "Exclusive brand Q", Brand__Logo = "logoQ.png"/*, Brand__CreatedByAccountId = accountId*/, Brand__Status = true },
+            new Brand { Brand__Name = "Brand R", Brand__Description = "Reliable brand R", Brand__Logo = "logoR.png"/*, Brand__CreatedByAccountId = accountId*/, Brand__Status = false },
+            new Brand { Brand__Name = "Brand S", Brand__Description = "Top-rated brand S", Brand__Logo = "logoS.png"/*, Brand__CreatedByAccountId = accountId*/, Brand__Status = true },
+            new Brand { Brand__Name = "Brand T", Brand__Description = "Innovative brand T", Brand__Logo = "logoT.png"/*, Brand__CreatedByAccountId = accountId*/, Brand__Status = false }
         };
     }
 
@@ -131,7 +131,7 @@ public class DataGenerator
             {
                 Product__Name = $"Product {i}",
                 Product__Description = $"Description for product {i}",
-                Product__CreatedByAccountId = brands[i-1].Brand__CreatedByAccountId,
+                Product__CreatedByAccountId = 1,
                 Product__BrandId = brands[i - 1].Brand__Id,
                 Product__CreatedDate = DateTime.Now.AddDays(-i),
                 Product__UpdatedDate = DateTime.Now.AddDays(-i / 2)

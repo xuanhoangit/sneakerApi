@@ -8,30 +8,43 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 
 using SneakerAPI.Core.DTOs;
+using SneakerAPI.Core.Interfaces;
 using SneakerAPI.Core.Interfaces.UserInterfaces;
 using SneakerAPI.Core.Libraries;
 using SneakerAPI.Core.Models;
+using SneakerAPI.Core.Models.UserEntities;
 
 
 namespace SneakerAPI.AdminApi.Controllers.UserController
 {   
     [ApiController]
-    [Route("[area]/api/[controller]")]
+    [ApiExplorerSettings(IgnoreApi = true)]
+    [Route("[area]/[controller]")]
     [Area("Dashboard")]
     [Authorize(Roles=RolesName.Manager)]
-    public class ManagerController : ControllerBase {
+    public class ManagerController : BaseController {
         private readonly UserManager<IdentityAccount> _accountManager;
         private readonly IEmailSender _emailSender;
         private readonly IMemoryCache _cache;
-
+        private readonly IUnitOfWork _uow;
 
         public ManagerController(UserManager<IdentityAccount> accountManager,
                                  IEmailSender emailSender,
-                                 IMemoryCache cache)
+                                 IMemoryCache cache,
+                                 IUnitOfWork uow):base(uow)
         {
             _accountManager = accountManager;
             _emailSender = emailSender;
             _cache = cache;
+            _uow = uow;
+        }
+        private bool AutoCreateInfo(int account_id){
+             //Auto tạo bảng info
+                    var staffInfo=new StaffInfo{
+                        StaffInfo__AccountId=account_id,
+                        StaffInfo__Avatar="default.jpg"
+                    };
+                    return _uow.StaffInfo.Add(staffInfo);
         }
         [HttpGet("get-staffs")]
         public async Task<IActionResult> GetStaffAccount(int take){
@@ -45,11 +58,10 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
             catch (System.Exception)
             {
                 
-                throw new Exception("An error has occurred while getting account");
+                return BadRequest("An error has occurred while getting account");
             }
             
         }
-        [Authorize(Roles=RolesName.Manager)]
         [HttpPost("create-staff")]
         public async Task<IActionResult> Register(RegisterDto model )
         {
@@ -60,13 +72,21 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
             {
                 return BadRequest("Password and password confirm do not match");
             }
-                        var account=await _accountManager.FindByEmailAsync(model.Email);
+            var account=await _accountManager.FindByEmailAsync(model.Email);
             if(account!=null)
-            {
-                var isInRole=await _accountManager.IsInRoleAsync(account,RolesName.Staff);
-                if(isInRole)
+            {   
+                var roles=await _accountManager.GetRolesAsync(account);
+                // var isInRole=await _accountManager.IsInRoleAsync(account,RolesName.Staff);
+                if(roles.Contains(RolesName.Staff))
                     return BadRequest("Account has access");
-                await _accountManager.AddToRoleAsync(account,RolesName.Staff);
+                var rs=await _accountManager.AddToRoleAsync(account,RolesName.Staff);
+                if(rs.Succeeded && 
+                    !roles.Contains(RolesName.Admin) &&
+                    !roles.Contains(RolesName.Manager))
+                {
+                    //Auto tạo bảng info
+                   AutoCreateInfo(account.Id);
+                }
                 return Ok("Granted permission to Manager successfully");
             }
             var newAccount = new IdentityAccount
@@ -80,7 +100,8 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
             if (result.Succeeded)
             {   
                 await _accountManager.AddToRoleAsync(newAccount, RolesName.Staff);
-
+                //Auto tạo bảng info
+                AutoCreateInfo(newAccount.Id);
                 // Sinh OTP và lưu vào MemoryCache (hết hạn sau 5 phút)
                 var otpCode = HandleString.GenerateVerifyCode();
                 _cache.Set(model.Email, otpCode, TimeSpan.FromMinutes(5));
@@ -96,12 +117,13 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
             catch (System.Exception)
             {
                 
-                throw new Exception("An error has occurred while registering");
+                return BadRequest("An error has occurred while registering");
             }
         }
     }
     //--------------------------------------------------------------------------------------------------------------
     [ApiController]
+    [ApiExplorerSettings(IgnoreApi = true)]
     [Route("[area]/api/[controller]")]
     [Area("Dashboard")]
     [Authorize(Roles=RolesName.Admin)]
@@ -110,18 +132,42 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
         private readonly UserManager<IdentityAccount> _accountManager;
         private readonly IEmailSender _emailSender;
         private readonly IMemoryCache _cache;
-
+        private readonly IUnitOfWork _uow;
 
         public AdminController(UserManager<IdentityAccount> accountManager,
                                  IEmailSender emailSender,
-                                 IMemoryCache cache)
+                                 IMemoryCache cache,
+                                 IUnitOfWork uow)
         {
             _accountManager = accountManager;
             _emailSender = emailSender;
             _cache = cache;
+           _uow = uow;
         }
 
-        
+        [HttpPut("envoke-role/{email}")]
+        public async Task<IActionResult> EnvokeRole(string email){
+            try
+            {
+ 
+            var account= await _accountManager.FindByEmailAsync(email);
+            if(account==null)
+                return BadRequest("Account is not exist");
+            var isInRole= await _accountManager.IsInRoleAsync(account,RolesName.Manager);
+            if(isInRole){
+            var result=await _accountManager.RemoveFromRoleAsync(account,RolesName.Manager);
+                if(result.Succeeded)
+                return Ok(new {result.Succeeded,Message="Manager rights revoked"});
+            }
+            return BadRequest("Account is not in role Manager");
+                           
+            }
+            catch (System.Exception e)
+            {
+                
+                return BadRequest(e);
+            }
+        }
         [HttpPut("unlock-account/{email}")]
         public async Task<IActionResult> UnlockAccount(string email)
         {
@@ -139,7 +185,7 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
             catch (System.Exception)
             {
                 
-                throw new Exception("An error has occurred while blocking account");
+                return BadRequest("An error has occurred while blocking account");
             }
         }
        
@@ -161,7 +207,7 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
             catch (System.Exception)
             {
                 
-                throw new Exception("An error has occurred while blocking account");
+                return BadRequest("An error has occurred while blocking account");
             }
         }
        
@@ -178,7 +224,7 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
             catch (System.Exception)
             {
                 
-                throw new Exception("An error has occurred while getting account");
+                return BadRequest("An error has occurred while getting account");
             }
             
         }
@@ -195,7 +241,7 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
             catch (System.Exception)
             {
                 
-                throw new Exception("An error has occurred while getting account");
+                return BadRequest("An error has occurred while getting account");
             }
             
         }
@@ -211,11 +257,18 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
             catch (System.Exception)
             {
                 
-                throw new Exception("An error has occurred while getting account");
+                return BadRequest("An error has occurred while getting account");
             }
             
         }
 
+        private bool AutoCreateInfo(int account_id){
+                    var staffInfo=new StaffInfo{
+                    StaffInfo__AccountId=account_id,
+                    StaffInfo__Avatar="default.jpg"
+                };
+                return _uow.StaffInfo.Add(staffInfo);
+        }
         [HttpPost("create-manager")]
         public async Task<IActionResult> Register(RegisterDto model)
         {
@@ -229,10 +282,14 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
             var account=await _accountManager.FindByEmailAsync(model.Email);
             if(account!=null)
             {
-                var isInRole=await _accountManager.IsInRoleAsync(account,RolesName.Manager);
-                if(isInRole)
+                var roles=await _accountManager.GetRolesAsync(account);
+                if(roles.Contains(RolesName.Manager))
                     return BadRequest("Account has access");
-                await _accountManager.AddToRoleAsync(account,RolesName.Manager);
+                var rs=await _accountManager.AddToRoleAsync(account,RolesName.Manager);
+                if(rs.Succeeded && !roles.Contains(RolesName.Staff)&& roles.Contains(RolesName.Admin))
+                {
+                    AutoCreateInfo(account.Id);
+                }
                 return Ok("Granted permission to Manager successfully");
             }
 
@@ -247,7 +304,8 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
             if (result.Succeeded)
             {   
                 await _accountManager.AddToRoleAsync(newAccount, RolesName.Manager);
-
+                //Auto tạo bảng info
+                AutoCreateInfo(newAccount.Id);
                 // Sinh OTP và lưu vào MemoryCache (hết hạn sau 5 phút)
                 var otpCode = HandleString.GenerateVerifyCode();
                 _cache.Set(model.Email, otpCode, TimeSpan.FromMinutes(5));
@@ -263,12 +321,13 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
             catch (System.Exception)
             {
                 
-                throw new Exception("An error has occurred while registering");
+                return BadRequest("An error has occurred while registering");
             }
         }
     }
     [ApiController]
     [Route("[area]/api/[controller]")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     [Area("Dashboard")]
     public class AccountController : ControllerBase{
 
@@ -291,9 +350,14 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
             _cache = cache;
             _jwtService = jwtService;
         }
+
     [HttpPost("refresh")]
     public async Task<IActionResult> RefreshToken([FromBody] TokenResponse model)
-    {
+    {   
+
+        try
+        {
+ 
         var username = _refreshtoken.FirstOrDefault(predicate: x => x.Value == model.RefreshToken).Key;
         if (string.IsNullOrEmpty(username))
             return Unauthorized("Refresh Token is not valid!");
@@ -305,6 +369,13 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
         _refreshtoken[username] = newTokens.RefreshToken;
 
         return Ok(newTokens);
+                   
+        }
+        catch (System.Exception e)
+        {
+            
+            return BadRequest(e);
+        }
     }
 private object CurrentUser()
 {   
@@ -333,10 +404,10 @@ private object CurrentUser()
     };
     }
    
-     catch (System.Exception)
+     catch (System.Exception e)
     {
         
-        throw;
+        return BadRequest(e);
     }
 }
 [Authorize]
@@ -383,7 +454,7 @@ public IActionResult GetCurrentUser()
             catch (System.Exception)
             {
                 
-                throw new Exception("An error has occurred while resending email confirmation");
+                return BadRequest("An error has occurred while resending email confirmation");
             }
         }
         [HttpPost("confirm-email")]
@@ -426,7 +497,7 @@ public IActionResult GetCurrentUser()
             catch (System.Exception)
             {
                 
-                throw new Exception("An error has occurred while confirming email");
+                return BadRequest("An error has occurred while confirming email");
             }
         }
         // Đăng nhập
@@ -460,7 +531,7 @@ public IActionResult GetCurrentUser()
             catch (System.Exception)
             {
                 
-                throw new Exception("An error has occurred while logging in");
+                return BadRequest("An error has occurred while logging in");
             }
         }
 
@@ -493,7 +564,7 @@ public IActionResult GetCurrentUser()
             catch (System.Exception)
             {
                 
-                throw new Exception("An error has occurred while sending email");
+                return BadRequest("An error has occurred while sending email");
             }
         }
 
@@ -533,7 +604,7 @@ public IActionResult GetCurrentUser()
             catch (System.Exception)
             {
                 
-                throw new Exception("An error has occurred while resetting password");
+                return BadRequest("An error has occurred while resetting password");
             }
         }
     }

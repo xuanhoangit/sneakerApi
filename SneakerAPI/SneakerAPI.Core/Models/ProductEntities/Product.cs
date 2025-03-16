@@ -13,9 +13,9 @@ namespace SneakerAPI.Core.Models.ProductEntities
         [Required]
         public string? Product__Name { get; set; }
         public string? Product__Description { get; set; }
-        public DateTime? Product__CreatedDate { get; set; }=DateTime.Now;
+        public DateTime? Product__CreatedDate { get; set; }=DateTime.UtcNow;
         public DateTime? Product__UpdatedDate { get; set; }
-        public int Product__Status {get;set;}=(int)Status.Unrelease;
+        public int Product__Status {get;set;}=(int)Status.Unreleased;
         // public 
         //
         public int Product__CreatedByAccountId { get; set; } 

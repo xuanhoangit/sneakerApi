@@ -23,10 +23,6 @@ namespace SneakerAPI.Api.Controllers
         public IActionResult GetById(int id){
             return Ok(uow.Product.Get(id));
         }
-        [HttpGet("filter")]
-        public async Task<IActionResult> GetFilteredProducts([FromQuery]ProductFilter filter){
-            return Ok( await uow.ProductFilter.GetFilteredProductsAsync(filter));
-        }
         [HttpGet("searchproduct/{name}")] 
         public async Task<IActionResult> SearchProductByName(string name){
             //validate

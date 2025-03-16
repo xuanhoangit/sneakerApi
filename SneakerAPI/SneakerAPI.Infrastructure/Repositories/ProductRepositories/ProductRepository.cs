@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using SneakerAPI.Core.DTOs;
 using SneakerAPI.Core.Interfaces;
 using SneakerAPI.Core.Interfaces.ProductInterfaces;
@@ -18,22 +19,21 @@ public class ProductRepository :Repository<Product> ,IProductRepository
     public ProductRepository(SneakerAPIDbContext db):base(db)
     {
         _db = db;
-        // _productSet=this.db.Set<Product>();
     }
-    // public IEnumerable<ProductDTO> GetProductsByCategoryId(int cate)
-    //     {
-    //         var query=from product in _db.Products
-    //         join productCategory in _db.ProductCategories on product.Product__Id equals productCategory.ProductCategory__ProductId
-    //         join category in _db.Categories on productCategory.ProductCategory__Id equals category.Category__Id
-    //         join productColor in _db.ProductColors on product.Product__Id equals productColor.ProductColor__ProductId
-    //         join
-    //         return query.ToList();
-    //     }
     public IQueryable<Product> GetFilteredProducts(ProductFilter filter)
     {
-        var query = _context.Set<Product>()
-            .Where(p => p.Product__Status == (int)Status.Unrelease || p.Product__Status==(int)Status.Active) // Chỉ lấy sản phẩm đã phát hành
-            .AsQueryable();
+        var query =_dbSet.AsQueryable();
+
+        if(!filter.SearchString.IsNullOrEmpty()){
+            query=query.Where(x=>
+            x.Product__Name.ToLower().Contains(filter.SearchString.ToLower()) ||
+            filter.SearchString.ToLower().Contains(x.Product__Name.ToLower()) ||
+
+            x.Product__Description.ToLower().Contains(filter.SearchString.ToLower()) ||
+            filter.SearchString.ToLower().Contains(x.Product__Description.ToLower()) 
+            
+            );
+        }
          // Lọc theo Brand (thương hiệu)
         if (filter.BrandIds != null && filter.BrandIds.Any())
         {
@@ -68,7 +68,7 @@ public class ProductRepository :Repository<Product> ,IProductRepository
             }
         }
 
-        return query;
+        return query.Where(p => p.Product__Status == (int)Status.Unreleased || p.Product__Status==(int)Status.Released);
     }
 
 }

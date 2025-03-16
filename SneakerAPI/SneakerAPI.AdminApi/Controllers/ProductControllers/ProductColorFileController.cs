@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using SneakerAPI.Core.Interfaces;
+using SneakerAPI.Core.Libraries;
 using SneakerAPI.Core.Models.ProductEntities;
 
 namespace SneakerAPI.AdminApi.Controllers.ProductControllers
@@ -9,40 +10,81 @@ namespace SneakerAPI.AdminApi.Controllers.ProductControllers
     public class ProductColorFileController : BaseController
     {
         private readonly IUnitOfWork _uow;
-        private readonly string uploadFilePath=Path.Combine(Directory.GetCurrentDirectory(),"wwwroot/uploads/product-imgs");
+        private static readonly string localStorage="uploads/product-images";
+        private readonly string uploadFilePath=Path.Combine(Directory.GetCurrentDirectory(),$"wwwroot/{localStorage}");
 
         public ProductColorFileController(IUnitOfWork uow):base(uow)
         {
             _uow = uow;
         }
-        [HttpPost("uploadFile")]
-        public async Task<IActionResult> Upload([FromForm] List<ProductColorFile> productFiles)
-        {   System.Console.WriteLine(productFiles[0].ProductColorFile__Name);
-            System.Console.WriteLine(productFiles[0].ProductColorFile__Id);
-            if (productFiles[0].ProductColorFile__File == null || productFiles.Count() == 0)
+        [HttpGet]
+        public IActionResult GetAll(){
+            return Ok(_uow.ProductColorFile.GetAll());
+        }
+        [HttpDelete("delete")]
+        public IActionResult Remove(List<int> file_ids){
+            var files=_uow.ProductColorFile.Find(x=>file_ids.Contains(x.ProductColorFile__Id)).ToList(); 
+            var result=_uow.ProductColorFile.RemoveRange(files);
+            if(result){
+                 // Kiểm tra tệp có tồn tại không
+                 foreach(var file in files){
+                    if (!System.IO.File.Exists(uploadFilePath+"/"+file.ProductColorFile__Name))
+                    {
+                        return NotFound(new { message = "File not found" });
+                    }
+                    
+                    System.IO.File.Delete(uploadFilePath+"/"+file.ProductColorFile__Name);
+                 }
+                
+            }
+            return Ok(result);
+        }
+        [HttpDelete("delete-product-images/{pc_id}")]
+        public IActionResult RemoveAll(int pc_id){
+            var files=_uow.ProductColorFile.Find(x=>x.ProductColorFile__ProductColorId==pc_id).ToList();
+            var result=_uow.ProductColorFile.RemoveRange(files);
+            if(result){
+                 // Kiểm tra tệp có tồn tại không
+                 foreach(var file in files){
+                    if (!System.IO.File.Exists(uploadFilePath+"/"+file.ProductColorFile__Name))
+                    {
+                        return NotFound(new { message = "File not found" });
+                    }
+                    
+                    System.IO.File.Delete(uploadFilePath+"/"+file.ProductColorFile__Name);
+                 }
+                
+            }
+            return Ok(result);
+        }
+        // public async Task<IActionResult> Remove(int){
+
+        // }
+        [HttpPost("upload")]
+        public async Task<IActionResult> Upload([FromForm] List<ProductColorFile> productColorFiles)
+        {  
+            System.Console.WriteLine(productColorFiles);
+            if (productColorFiles == null || !productColorFiles.Any())
                 return BadRequest("No files were uploaded.");
 
-            var result=_uow.ProductColorFile.AddRange(productFiles);
-            if(!result){
-                return Ok(new {isSuccess=result,message="Thất bại"});
-            }
-
-            foreach (var file in productFiles)
-            {
-                var filePath = Path.Combine(uploadFilePath, file.ProductColorFile__Name!);
-                System.Console.WriteLine(productFiles[0].ProductColorFile__Name);
-                System.Console.WriteLine(filePath);
-                // Lưu file vào thư mục server
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await file.ProductColorFile__File.CopyToAsync(stream);
+            foreach (var file in productColorFiles)
+            {   
+                var result=_uow.ProductColorFile.Add(file);
+                    if(result){
+                    var filePath = Path.Combine(uploadFilePath, file.ProductColorFile__Name!);
+                    // Lưu file vào thư mục server
+                    var isSuccess=await HandleFile.Upload(file.ProductColorFile__File,filePath);
+                    if(!isSuccess){
+                        //Xóa nếu không thành công
+                        _uow.ProductColorFile.Remove(_uow.ProductColorFile.FirstOrDefault(x=>x.ProductColorFile__Name==file.ProductColorFile__Name));
+                    }
                 }
                 
             }
-            var fileUrls=await _uow.ProductColorFile.GetAllAsync(x=>x.ProductColorFile__ProductColorId==productFiles[0].ProductColorFile__ProductColorId);
+            var fileUrls=_uow.ProductColorFile.Find(x=>x.ProductColorFile__ProductColorId==productColorFiles[0].ProductColorFile__ProductColorId);
                         foreach (var file in fileUrls)
                     {
-                        file.Url= $"{Request.Scheme}://{Request.Host}/uploads/product-imgs/{file.ProductColorFile__Name}";
+                        file.Url= $"{Request.Scheme}://{Request.Host}/{localStorage}/{file.ProductColorFile__Name}";
                     }
             return Ok(new { isSuccess = true, fileUrls });
         }

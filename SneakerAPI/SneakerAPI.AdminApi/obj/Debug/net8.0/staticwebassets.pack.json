@@ -1,8 +1,36 @@
 {
   "Files": [
     {
-      "Id": "D:\\Download\\API\\SneakerApi\\sneakerApi\\SneakerAPI\\SneakerAPI.AdminApi\\wwwroot\\uploads\\product-images\\.env",
-      "PackagePath": "staticwebassets\\uploads\\product-images\\.env"
+      "Id": "D:\\Download\\API\\SneakerApi\\sneakerApi\\SneakerAPI\\SneakerAPI.AdminApi\\wwwroot\\uploads\\avatars\\default.jpg",
+      "PackagePath": "staticwebassets\\uploads\\avatars\\default.jpg"
+    },
+    {
+      "Id": "D:\\Download\\API\\SneakerApi\\sneakerApi\\SneakerAPI\\SneakerAPI.AdminApi\\wwwroot\\uploads\\product-images\\2f38e4ed-5495-42e5-8e3b-dae29cd671c2.jpg",
+      "PackagePath": "staticwebassets\\uploads\\product-images\\2f38e4ed-5495-42e5-8e3b-dae29cd671c2.jpg"
+    },
+    {
+      "Id": "D:\\Download\\API\\SneakerApi\\sneakerApi\\SneakerAPI\\SneakerAPI.AdminApi\\wwwroot\\uploads\\product-images\\300c8e68-48ac-40da-aff9-a51a6a48e3cc.jpg",
+      "PackagePath": "staticwebassets\\uploads\\product-images\\300c8e68-48ac-40da-aff9-a51a6a48e3cc.jpg"
+    },
+    {
+      "Id": "D:\\Download\\API\\SneakerApi\\sneakerApi\\SneakerAPI\\SneakerAPI.AdminApi\\wwwroot\\uploads\\product-images\\3b0d641c-3162-4ecb-9b34-231eda515c52.jpg",
+      "PackagePath": "staticwebassets\\uploads\\product-images\\3b0d641c-3162-4ecb-9b34-231eda515c52.jpg"
+    },
+    {
+      "Id": "D:\\Download\\API\\SneakerApi\\sneakerApi\\SneakerAPI\\SneakerAPI.AdminApi\\wwwroot\\uploads\\product-images\\872a7167-bc51-4b8a-a70d-bc17bc3ed523.jpg",
+      "PackagePath": "staticwebassets\\uploads\\product-images\\872a7167-bc51-4b8a-a70d-bc17bc3ed523.jpg"
+    },
+    {
+      "Id": "D:\\Download\\API\\SneakerApi\\sneakerApi\\SneakerAPI\\SneakerAPI.AdminApi\\wwwroot\\uploads\\product-images\\8aa3d649-fa0d-434e-abab-ffed0e4bfbe1.jpg",
+      "PackagePath": "staticwebassets\\uploads\\product-images\\8aa3d649-fa0d-434e-abab-ffed0e4bfbe1.jpg"
+    },
+    {
+      "Id": "D:\\Download\\API\\SneakerApi\\sneakerApi\\SneakerAPI\\SneakerAPI.AdminApi\\wwwroot\\uploads\\product-images\\bc7d6e00-b888-4f69-b213-dcf831b0fe24.jpg",
+      "PackagePath": "staticwebassets\\uploads\\product-images\\bc7d6e00-b888-4f69-b213-dcf831b0fe24.jpg"
+    },
+    {
+      "Id": "D:\\Download\\API\\SneakerApi\\sneakerApi\\SneakerAPI\\SneakerAPI.AdminApi\\wwwroot\\uploads\\product-images\\fca4484e-e376-44d3-b0ef-b430191b1bcd.jpg",
+      "PackagePath": "staticwebassets\\uploads\\product-images\\fca4484e-e376-44d3-b0ef-b430191b1bcd.jpg"
     },
     {
       "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.SneakerAPI.AdminApi.Microsoft.AspNetCore.StaticWebAssets.props",

@@ -73,6 +73,8 @@ builder.Services.AddAuthentication()
 });
 
 //End Cònig
+// Đăng ký AutoMapper
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 builder.Services.AddMemoryCache(); // Thêm dịch vụ MemoryCache
 builder.Services.AddSession(); // Thêm dịch vụ Session
 builder.Services.AddDistributedMemoryCache(); // Cần thiết cho Session

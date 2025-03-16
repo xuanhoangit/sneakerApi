@@ -6,8 +6,7 @@ using SneakerAPI.Core.Interfaces.UserInterfaces;
 namespace SneakerAPI.Core.Interfaces;
 public interface IUnitOfWork
 {   
-    //FILTER
-    IProductFilterRepository ProductFilter { get; }
+
     //IOrder
     IOrderRepository Order { get; }
     IOrderDetailRepository OrderDetail { get; }
