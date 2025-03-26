@@ -213,7 +213,7 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
         }
        
  
-        [HttpGet("list-accounts/roles/{role:string}/page/{page:int?}")]
+        [HttpGet("list-accounts/roles/{role}/page/{page:int?}")]
         public async Task<IActionResult> GetAccountsByRole(string role,int page){
             try
             {

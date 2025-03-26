@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SneakerAPI.Core.DTOs;
 using SneakerAPI.Core.Interfaces;
 using SneakerAPI.Core.Libraries;
-using SneakerAPI.Core.Models.UserEntities;
+
 
 namespace SneakerAPI.Api.Controllers.UserControllers
 {

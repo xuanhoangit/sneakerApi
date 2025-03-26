@@ -193,4 +193,3 @@ D:\Download\API\SneakerApi\sneakerApi\SneakerAPI\SneakerAPI.AdminApi\bin\Debug\n
 D:\Download\API\SneakerApi\sneakerApi\SneakerAPI\SneakerAPI.AdminApi\bin\Debug\net8.0\StackExchange.Redis.dll
 D:\Download\API\SneakerApi\sneakerApi\SneakerAPI\SneakerAPI.AdminApi\bin\Debug\net8.0\AutoMapper.dll
 D:\Download\API\SneakerApi\sneakerApi\SneakerAPI\SneakerAPI.AdminApi\bin\Debug\net8.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll
-D:\Download\API\SneakerApi\sneakerApi\SneakerAPI\SneakerAPI.AdminApi\bin\Debug\net8.0\VNPAY.NET.dll
