@@ -11,5 +11,5 @@ public class ProductColorSizeRepository :Repository<ProductColorSize> ,IProductC
     {
         
     }
-
+    // public 
 }

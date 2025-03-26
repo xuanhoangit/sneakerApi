@@ -3,6 +3,7 @@ using System;
 namespace SneakerAPI.Core.Libraries;
     public class HandleString
 {   
+    public const string DefaultImage="default.jpg";
     public static string GenerateVerifyCode()
     {
         Random random = new Random();

@@ -10,6 +10,6 @@ namespace SneakerAPI.Core.DTOs;
         public string? StaffInfo__LastName { get; set; }
         public string? StaffInfo__Phone { get; set; }
         public string? StaffInfo__Avatar { get; set; }
-        public int? StaffInfo__AccountId { get; set; }
+        public int StaffInfo__AccountId { get; set; }
         public IFormFile? File {get;set;}
 }

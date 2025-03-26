@@ -18,15 +18,15 @@ using SneakerAPI.Core.Models.UserEntities;
 namespace SneakerAPI.AdminApi.Controllers.UserController
 {   
     [ApiController]
-    [ApiExplorerSettings(IgnoreApi = true)]
-    [Route("[area]/[controller]")]
-    [Area("Dashboard")]
+    //[ApiExplorerSettings(IgnoreApi = true)]
+    [Route("api/managers")]
     [Authorize(Roles=RolesName.Manager)]
     public class ManagerController : BaseController {
         private readonly UserManager<IdentityAccount> _accountManager;
         private readonly IEmailSender _emailSender;
         private readonly IMemoryCache _cache;
         private readonly IUnitOfWork _uow;
+        private readonly int unitInAPage=20;
 
         public ManagerController(UserManager<IdentityAccount> accountManager,
                                  IEmailSender emailSender,
@@ -42,15 +42,15 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
              //Auto tạo bảng info
                     var staffInfo=new StaffInfo{
                         StaffInfo__AccountId=account_id,
-                        StaffInfo__Avatar="default.jpg"
+                        StaffInfo__Avatar=HandleString.DefaultImage
                     };
                     return _uow.StaffInfo.Add(staffInfo);
         }
-        [HttpGet("get-staffs")]
-        public async Task<IActionResult> GetStaffAccount(int take){
+        [HttpGet("list-staffs/page/{page:int?}")]
+        public async Task<IActionResult> GetStaffAccount(int page){
             try
             {
-                var accounts= (await _accountManager.GetUsersInRoleAsync(RolesName.Staff)).Take(take);
+                var accounts= (await _accountManager.GetUsersInRoleAsync(RolesName.Staff)).Skip(page*unitInAPage).Take(unitInAPage);
                 if(accounts==null)
                     return BadRequest("Have not an account!");
                 return Ok(accounts);
@@ -80,12 +80,11 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
                 if(roles.Contains(RolesName.Staff))
                     return BadRequest("Account has access");
                 var rs=await _accountManager.AddToRoleAsync(account,RolesName.Staff);
-                if(rs.Succeeded && 
-                    !roles.Contains(RolesName.Admin) &&
-                    !roles.Contains(RolesName.Manager))
+                if(rs.Succeeded)
                 {
-                    //Auto tạo bảng info
-                   AutoCreateInfo(account.Id);
+                    //Auto tạo bảng 
+                    if(null==_uow.StaffInfo.FirstOrDefault(x=>x.StaffInfo__AccountId==account.Id))
+                    AutoCreateInfo(account.Id);
                 }
                 return Ok("Granted permission to Manager successfully");
             }
@@ -110,7 +109,9 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
                 await _emailSender.SendEmailAsync(model.Email, "Confirm email",
                     EmailTemplateHtml.RenderEmailRegisterBody(model.Email, otpCode));
 
-                return Ok("Create account successfully. Please check your email for verification code.");
+                var uri=new Uri($"{Request.Scheme}://{Request.Host}/api/manager/register-staff/{newAccount.Email}");
+                return Created(uri, new { message = "Create account successfully. Please check your email for verification code.",email=newAccount.Email});
+
             }
             return BadRequest(result.Errors);
              }
@@ -123,9 +124,9 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
     }
     //--------------------------------------------------------------------------------------------------------------
     [ApiController]
-    [ApiExplorerSettings(IgnoreApi = true)]
-    [Route("[area]/api/[controller]")]
-    [Area("Dashboard")]
+    //[ApiExplorerSettings(IgnoreApi = true)]
+    [Route("api/admins")]
+
     [Authorize(Roles=RolesName.Admin)]
     public class AdminController : ControllerBase
     {
@@ -133,7 +134,7 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
         private readonly IEmailSender _emailSender;
         private readonly IMemoryCache _cache;
         private readonly IUnitOfWork _uow;
-
+        private readonly int unitInAPage=20;
         public AdminController(UserManager<IdentityAccount> accountManager,
                                  IEmailSender emailSender,
                                  IMemoryCache cache,
@@ -145,12 +146,12 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
            _uow = uow;
         }
 
-        [HttpPut("envoke-role/{email}")]
-        public async Task<IActionResult> EnvokeRole(string email){
+        [HttpPut("role-envoke")]
+        public async Task<IActionResult> EnvokeRole([FromBody]EmailUser model){
             try
             {
  
-            var account= await _accountManager.FindByEmailAsync(email);
+            var account= await _accountManager.FindByEmailAsync(model.Email);
             if(account==null)
                 return BadRequest("Account is not exist");
             var isInRole= await _accountManager.IsInRoleAsync(account,RolesName.Manager);
@@ -168,12 +169,12 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
                 return BadRequest(e);
             }
         }
-        [HttpPut("unlock-account/{email}")]
-        public async Task<IActionResult> UnlockAccount(string email)
+        [HttpPut("unlock-account")]
+        public async Task<IActionResult> UnlockAccount([FromBody]EmailUser model)
         {
             try
             {
-                var account =await  _accountManager.FindByEmailAsync(email);
+                var account =await  _accountManager.FindByEmailAsync(model.Email);
                 if (account == null)
                     return BadRequest("Account does not exist.");
 
@@ -189,13 +190,13 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
             }
         }
        
-        [HttpPut("block-account/{email}")]
+        [HttpPut("block-account")]
     
-        public async Task<IActionResult> BlockAccount(string email)
+        public async Task<IActionResult> BlockAccount([FromBody]EmailUser model)
         {
             try
             {
-                var account =await  _accountManager.FindByEmailAsync(email);
+                var account =await  _accountManager.FindByEmailAsync(model.Email);
                 if (account == null)
                     return BadRequest("Account does not exist.");
 
@@ -212,11 +213,11 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
         }
        
  
-        [HttpGet("get-accounts-by-role/{role}")]
-        public async Task<IActionResult> GetAccountsByRole(string role,int take){
+        [HttpGet("list-accounts/roles/{role:string}/page/{page:int?}")]
+        public async Task<IActionResult> GetAccountsByRole(string role,int page){
             try
             {
-                var accounts= (await _accountManager.GetUsersInRoleAsync(role)).Take(take);
+                var accounts= (await _accountManager.GetUsersInRoleAsync(role)).Skip(unitInAPage*page).Take(unitInAPage);
                 if(accounts==null)
                     return BadRequest("Have not an account!");
                 return Ok(accounts);
@@ -229,11 +230,11 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
             
         }
 
-        [HttpGet("get-account-by-email/{email}")]
-        public async Task<IActionResult> GetAccount(string email){
+        [HttpGet("list-accounts")]
+        public async Task<IActionResult> GetAccountByEmail([FromBody] EmailUser model){
             try
             {
-                var account=await  _accountManager.FindByEmailAsync(email);
+                var account=await  _accountManager.FindByEmailAsync(model.Email);
                 if(account==null)
                     return BadRequest("Account not found");
                 return Ok(account);
@@ -245,13 +246,13 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
             }
             
         }
-        [HttpGet("get-account-by-id/{accountId}")]
-        public async Task<IActionResult> GetAccount(int accountId){
+        [HttpGet("list-accounts/{accountId:int?}")]
+        public async Task<IActionResult> GetAccountById(int accountId){
             try
             {
                 var account=await  _accountManager.FindByIdAsync(accountId.ToString());
                 if(account==null)
-                    return BadRequest("Account not found");
+                    return NotFound("Account not found");
                 return Ok(account);
             }
             catch (System.Exception)
@@ -265,12 +266,12 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
         private bool AutoCreateInfo(int account_id){
                     var staffInfo=new StaffInfo{
                     StaffInfo__AccountId=account_id,
-                    StaffInfo__Avatar="default.jpg"
+                    StaffInfo__Avatar=HandleString.DefaultImage
                 };
                 return _uow.StaffInfo.Add(staffInfo);
         }
         [HttpPost("create-manager")]
-        public async Task<IActionResult> Register(RegisterDto model)
+        public async Task<IActionResult> Register([FromBody]RegisterDto model)
         {
             try
             {
@@ -282,12 +283,13 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
             var account=await _accountManager.FindByEmailAsync(model.Email);
             if(account!=null)
             {
-                var roles=await _accountManager.GetRolesAsync(account);
-                if(roles.Contains(RolesName.Manager))
+                var isInRole=await _accountManager.IsInRoleAsync(account,RolesName.Manager);
+                if(isInRole)
                     return BadRequest("Account has access");
                 var rs=await _accountManager.AddToRoleAsync(account,RolesName.Manager);
-                if(rs.Succeeded && !roles.Contains(RolesName.Staff)&& roles.Contains(RolesName.Admin))
-                {
+                if(rs.Succeeded)
+                {   
+                    if(null==_uow.StaffInfo.FirstOrDefault(x=>x.StaffInfo__AccountId==account.Id))
                     AutoCreateInfo(account.Id);
                 }
                 return Ok("Granted permission to Manager successfully");
@@ -314,7 +316,8 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
                 await _emailSender.SendEmailAsync(model.Email, "Confirm email",
                     EmailTemplateHtml.RenderEmailRegisterBody(model.Email, otpCode));
 
-                return Ok("Register successfully. Please check your email for verification code.");
+                var uri=new Uri($"{Request.Scheme}://{Request.Host}/api/admin/register-manager/{newAccount.Email}");
+                return Created(uri, new { message = "Create account successfully. Please check your email for verification code.",email=newAccount.Email});
             }
             return BadRequest(result.Errors);
              }
@@ -326,10 +329,10 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
         }
     }
     [ApiController]
-    [Route("[area]/api/[controller]")]
-    [ApiExplorerSettings(IgnoreApi = true)]
+    [Route("api/accounts")]
+    // //[ApiExplorerSettings(IgnoreApi = true)]
     [Area("Dashboard")]
-    public class AccountController : ControllerBase{
+    public class AccountController : BaseController{
 
         private static Dictionary<string,string> _refreshtoken= new ();
         private readonly UserManager<IdentityAccount> _accountManager;
@@ -342,7 +345,8 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
                                  SignInManager<IdentityAccount> signInManager,
                                  IEmailSender emailSender,
                                  IMemoryCache cache,
-                                 IJwtService jwtService)
+                                 IJwtService jwtService,
+                                 IUnitOfWork uow):base(uow)
         {
             _accountManager = accountManager;
             _signInManager = signInManager;
@@ -351,7 +355,7 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
             _jwtService = jwtService;
         }
 
-    [HttpPost("refresh")]
+    [HttpPost("new-token")]
     public async Task<IActionResult> RefreshToken([FromBody] TokenResponse model)
     {   
 
@@ -377,54 +381,21 @@ namespace SneakerAPI.AdminApi.Controllers.UserController
             return BadRequest(e);
         }
     }
-private object CurrentUser()
-{   
-    try
-    {
-        
-    var account = HttpContext.User;
 
-    if (account == null || !account.Identity.IsAuthenticated)
-    {
-        return Unauthorized("User is not authenticated.");
-    }
-
-    var sub = account.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-    var email=account.FindFirst(ClaimTypes.Email)?.Value;
-    var roles = account.Claims
-        .Where(c => c.Type == ClaimTypes.Role || c.Type.EndsWith("role"))
-        .Select(c => c.Value)
-        .ToList();
-    return new CurrentUser
-    {
-        // AcccountId = accountID,
-        AccountId = sub,
-        Email = email,
-        Roles = roles,
-    };
-    }
-   
-     catch (System.Exception e)
-    {
-        
-        return BadRequest(e);
-    }
-}
 [Authorize]
 [HttpGet("current-user")]
 public IActionResult GetCurrentUser()
 {
-    
-    return Ok(CurrentUser());
+    return Ok((CurrentUser)CurrentUser());
 }   
 
-        [HttpPost("resend-email-confirmation")]
-        public async Task<IActionResult> ResendEmailConfirmation(string email)
+        [HttpPost("email-confirmation-resend")]
+        public async Task<IActionResult> ResendEmailConfirmation(ResendOTPDto model)
         {   
             try
             {
            
-            var account = await _accountManager.FindByEmailAsync(email);
+            var account = await _accountManager.FindByEmailAsync(model.Email);
             if (account == null )
             {
                 return BadRequest("Email does not exist.");
@@ -435,19 +406,17 @@ public IActionResult GetCurrentUser()
                 return BadRequest("Your email has been previously verified.");
             }
 
-            if (!_cache.TryGetValue(email, out string storedOtp))
+            if (!_cache.TryGetValue(model.Email, out string storedOtp))
             {   
                 // Sinh OTP và lưu vào MemoryCache (hết hạn sau 5 phút)
                 var otpCode = HandleString.GenerateVerifyCode();
-                _cache.Set(email, otpCode, TimeSpan.FromMinutes(5));
+                _cache.Set(model.Email, otpCode, TimeSpan.FromMinutes(5));
 
                 // Gửi OTP qua email
-                await _emailSender.SendEmailAsync(email, "Confirm email",
-                EmailTemplateHtml.RenderEmailRegisterBody(email, otpCode));
+                await _emailSender.SendEmailAsync(model.Email, "Confirm email",
+                EmailTemplateHtml.RenderEmailRegisterBody(model.Email, otpCode));
                 return Ok("Please check your email for verification code.");
             }
-
-
             return BadRequest("Please try again in a few minutes.");
                  
             }
@@ -457,7 +426,7 @@ public IActionResult GetCurrentUser()
                 return BadRequest("An error has occurred while resending email confirmation");
             }
         }
-        [HttpPost("confirm-email")]
+        [HttpPost("email-confirm")]
         public async Task<IActionResult> ConfirmEmail(ConfirmEmailDto model)
         {   
             try
@@ -535,7 +504,7 @@ public IActionResult GetCurrentUser()
             }
         }
 
-        [HttpPost("forgot-password")]
+        [HttpPost("password-forgot")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto model)
         {
             try
@@ -570,8 +539,8 @@ public IActionResult GetCurrentUser()
 
         // Đặt lại mật khẩu
         [Authorize(Roles=$"{RolesName.Admin},{RolesName.Manager},{RolesName.Staff}")]
-        [HttpPost("change-password")]
-        public async Task<IActionResult> ResetPassword(ChangePasswordDto model)
+        [HttpPost("password-change")]
+        public async Task<IActionResult> ChangePassword(ChangePasswordDto model)
         {
             try
             {

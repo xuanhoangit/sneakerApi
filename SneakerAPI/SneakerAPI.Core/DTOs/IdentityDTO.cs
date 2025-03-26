@@ -14,38 +14,42 @@ public static class RolesName
 }
 public class RegisterDto
 {
-    public string Email { get; set; }="0368154633a@gmail.com";
-    public string Password { get; set; }="Txhoang11!";
-    public string PasswordComfirm { get; set; }="Txhoang11!";
+    public string Email { get; set; }
+    public string Password { get; set; }
+    public string PasswordComfirm { get; set; }
 }
 
 public class LoginDto
 {
-    public string Email { get; set; }="0368154633a@gmail.com";
-    public string Password { get; set; }="Txhoang11!";
+    public string Email { get; set; }
+    public string Password { get; set; }
 }
 
 public class ForgotPasswordDto
 {
-    public string Email { get; set; }="0368154633a@gmail.com";
+    public string Email { get; set; }
+}
+public class ResendOTPDto
+{
+    public string Email { get; set; }
 }
 
 
 public class ChangePasswordDto
 {
-    // public string Email { get; set; }="0368154633a@gmail.com";
     public string? Password { get; set; }
     public string NewPassword { get; set; }
     public string ConfirmNewPassword { get; set; }
 }
 public class CurrentUser{
-    public string AccountId { get; set; }
+    public int AccountId { get; set; }
     public string Email { get; set; }
     public List<string> Roles{ get; set; }
+}
+public class EmailUser{
+    public string Email { get; set; }
 }
 public class TokenResponse{
     public string AccessToken { get; set; }
     public string RefreshToken { get; set; }
-    public string Message { get; set; }
-
 }

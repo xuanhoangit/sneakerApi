@@ -6,10 +6,12 @@ using SneakerAPI.Core.Interfaces.UserInterfaces;
 namespace SneakerAPI.Core.Interfaces;
 public interface IUnitOfWork
 {   
-
+    //VNpay
+    IVnpay Vnpay{get;}
     //IOrder
+    ICartItemRepository CartItem { get; }
     IOrderRepository Order { get; }
-    IOrderDetailRepository OrderDetail { get; }
+    IOrderItemRepository OrderItem { get; }
     //IProduct
     IProductColorFileRepository ProductColorFile { get; }
     IProductRepository Product { get; }

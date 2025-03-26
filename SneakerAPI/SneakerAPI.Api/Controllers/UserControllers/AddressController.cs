@@ -1,4 +1,5 @@
 
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SneakerAPI.Api.Controllers;
@@ -8,114 +9,159 @@ using SneakerAPI.Core.Models.UserEntities;
 
 namespace SneakerAPI.AdminApi.Controllers.ProductControllers
 {   
-    [Area("Client")]
-    [Route("[Area]/api/[controller]")]
+    [Route("api/addresses")]
     [ApiController]
     [Authorize(Roles = RolesName.Customer)]
     public class AddressController : BaseController
     {
         private readonly IUnitOfWork _uow;
+        private readonly IMapper _mapper;
 
-        public AddressController(IUnitOfWork uow):base(uow)
+        public AddressController(IUnitOfWork uow,IMapper mapper):base(uow)
         {
             _uow = uow;
+            _mapper = mapper;
         }
         
-        [HttpGet("addresses/{infoId}")]
-        public async Task<IActionResult> GetAddresses(int infoId)
-        {   
+        [HttpGet("user-information/{userInformationId}/addresses")]
+        public async Task<IActionResult> GetAddresses(int userInformationId)
+        {
             try
             {
-                var addresses = await _uow.Address.GetAllAsync(x=>x.Address__CustomerInfo == infoId);
-                if(addresses == null)
+                var addresses = await _uow.Address.GetAllAsync(x => x.Address__CustomerInfo == userInformationId);
+
+                if (addresses == null || !addresses.Any())
                 {
-                    return NotFound("Addresses not found");
+                    return NotFound(new { message = "No addresses found for this user information." });
                 }
+
                 return Ok(addresses);
             }
-            catch (System.Exception)
+            catch (Exception ex)
             {
-                
-                throw new Exception("An error occurred while getting addresses");
+                // _logger.LogError(ex, "Error fetching addresses for user information ID {UserInformationId}", userInformationId);
+                return StatusCode(500, new { error = "An internal server error occurred." });
             }
         }
-        
-        [HttpGet("address/{id}")]
+
+        [HttpGet("{id}")]
         public IActionResult GetAddress(int id)
         {
             try
             {
-                
-         
                 var address = _uow.Address.Get(id);
-                if(address == null)
+                if (address == null)
                 {
-                    return NotFound("Address not found");
+                    return NotFound(new { message = "Address not found" });
                 }
                 return Ok(address);
-               }
-            catch (System.Exception)
+            }
+            catch (Exception ex)
             {
-                
-                throw new Exception("An error occurred while getting address");
-            }    
+                // _logger.LogError(ex, "Error while fetching address with ID {Id}", id);
+                return StatusCode(500, new { error = "An internal server error occurred." });
+            }
         }
-        
-        [HttpPost("new-address")]
-        public IActionResult CreateAddress(Address address)
+
+        [HttpPost("new")]
+        public IActionResult CreateAddress([FromBody] AddressDTO addressDTO)
         {
             try
             {   
-                var addressDefault= _uow.Address.GetFirstOrDefault(x=>x.Address__IsDefault == true && x.Address__CustomerInfo == address.Address__CustomerInfo);
-                if(addressDefault == null)
-                    address.Address__IsDefault = true;
-                address.Address__IsDefault = false;
+                if (addressDTO == null)
+                {
+                    return BadRequest(new { error = "Invalid input" });
+                }
+
+                // Kiểm tra nếu đã có địa chỉ mặc định
+                var existingDefaultAddress = _uow.Address
+                    .GetFirstOrDefault(x => x.Address__IsDefault==true && x.Address__CustomerInfo == addressDTO.Address__CustomerInfo);
+            
+                var address = _mapper.Map<Address>(addressDTO);
+
+                // Nếu chưa có địa chỉ mặc định, đặt địa chỉ này làm mặc định
+                address.Address__IsDefault = existingDefaultAddress == null;
+
                 _uow.Address.Add(address);
-                _uow.Save();
-                return Ok(address);
-             }
-            catch (System.Exception)
+
+                return CreatedAtAction(nameof(GetAddress), new { id = address.Address__Id }, address);
+            }
+            catch (Exception ex)
             {
-                
-                throw new Exception("An error occurred while creating address");
+                // _logger.LogError(ex, "Error while creating address");
+                return StatusCode(500, new { error = "An internal server error occurred." });
             }
         }
-        
-        [HttpPatch("update-address")]
-        public IActionResult UpdateAddress(Address address)
+
+        [HttpPatch("{id}")]
+        public IActionResult UpdateAddress(int id, [FromBody] AddressDTO addressDTO)
         {
             try
             {
+                if (addressDTO == null)
+                {
+                    return BadRequest(new { error = "Invalid input" });
+                }
+
+                var address = _uow.Address.Get(id);
+                if (address == null)
+                {
+                    return NotFound(new { error = "Address not found" });
+                }
+
+                // Cập nhật dữ liệu
+                if (!string.IsNullOrEmpty(addressDTO.Address__FullAddress))
+                    address.Address__FullAddress = addressDTO.Address__FullAddress;
+                if (!string.IsNullOrEmpty(addressDTO.Address__Phone))
+                    address.Address__Phone = addressDTO.Address__Phone;
+                if (!string.IsNullOrEmpty(addressDTO.Address__ReceiverName))
+                    address.Address__ReceiverName = addressDTO.Address__ReceiverName;
+
+                // Nếu cập nhật địa chỉ mặc định
+                if (addressDTO.Address__IsDefault ==true && !address.Address__IsDefault==true)
+                {
+                    // Cập nhật tất cả các địa chỉ khác thành không mặc định
+                    var allAddresses = _uow.Address
+                        .GetAllAsync(x => x.Address__CustomerInfo == address.Address__CustomerInfo).Result;
+                    foreach (var addr in allAddresses)
+                    {
+                        addr.Address__IsDefault = false;
+                    }
+                    address.Address__IsDefault = true;
+                }
+
                 _uow.Address.Update(address);
                 _uow.Save();
-                return Ok(address);
+
+                return Ok(new { message = "Address updated successfully" });
             }
-            catch (System.Exception)
+            catch (Exception ex)
             {
-                
-                throw new Exception("An error occurred while updating address");
+                // _logger.LogError(ex, "Error while updating address with ID {Id}", id);
+                return StatusCode(500, new { error = "An internal server error occurred." });
             }
         }
-        
-        [HttpDelete("delete-address/{id}")]
-        public IActionResult DeleteAddress(int id)
+
+    [HttpDelete("{id}")]
+    public IActionResult DeleteAddress(int id)
+    {
+        try
         {
-            try
+            var address = _uow.Address.Get(id);
+            if (address == null)
             {
-                var address = _uow.Address.Get(id);
-                if(address == null)
-                {
-                    return NotFound("Address not found");
-                }
-                _uow.Address.Remove(address);
-                _uow.Save();
-                return Ok("Address deleted");
+                return NotFound(new { error = "Address not found" });
             }
-            catch (System.Exception)
-            {
-                
-                throw new Exception("An error occurred while deleting address");
-            }
+
+            _uow.Address.Remove(address);
+
+            return Ok(new { message = "Address deleted successfully" });
         }
+        catch (Exception ex)
+        {
+            // _logger.LogError(ex, "Error while deleting address with ID {Id}", id);
+            return StatusCode(500, new { error = "An internal server error occurred." });
+        }
+    }
     }
 }

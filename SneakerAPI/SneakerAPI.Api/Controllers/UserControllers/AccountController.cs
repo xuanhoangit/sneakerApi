@@ -10,11 +10,11 @@ using Microsoft.Extensions.Caching.Memory;
 
 
 using SneakerAPI.Core.DTOs;
+using SneakerAPI.Core.Interfaces;
 using SneakerAPI.Core.Interfaces.UserInterfaces;
 using SneakerAPI.Core.Libraries;
 using SneakerAPI.Core.Models;
 using SneakerAPI.Core.Models.UserEntities;
-using SneakerAPI.Infrastructure.Repositories;
 
 
 namespace SneakerAPI.Api.Controllers.UserControllers
@@ -24,67 +24,33 @@ namespace SneakerAPI.Api.Controllers.UserControllers
     public required string Credential { get; set; }
 }
     [ApiController]
-    [Route("[Area]/api/[controller]")]
-    [Area("Client")]
+    [Route("api/accounts")]
     public class AccountController : BaseController
     {   
         private static Dictionary<string,string> _refreshtoken= new ();
         private readonly UserManager<IdentityAccount> _accountManager;
         private readonly SignInManager<IdentityAccount> _signInManager;
         private readonly IEmailSender _emailSender;
-        private readonly IConfiguration _config;
         private readonly IMemoryCache _cache;
         private readonly IJwtService _jwtService;
-        private readonly UnitOfWork _uow;
+        private readonly IUnitOfWork _uow;
+
 
         public AccountController(UserManager<IdentityAccount> accountManager,
                                  SignInManager<IdentityAccount> signInManager,
                                  IEmailSender emailSender,
-                                 IConfiguration config,
                                  IMemoryCache cache,
                                  IJwtService jwtService,
-                                 UnitOfWork uow):base (uow)
+                                 IUnitOfWork uow):base (uow)
         {
             _accountManager = accountManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
-            _config = config;
             _cache = cache;
             _jwtService = jwtService;
             _uow = uow;
         }
-        private object CurrentUser()
-        {   
-            try
-            {
-                
-            var account = HttpContext.User;
 
-            if (account == null || !account.Identity.IsAuthenticated)
-            {
-                return Unauthorized("User is not authenticated.");
-            }
-
-            var sub = account.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var email=account.FindFirst(ClaimTypes.Email)?.Value;
-            var roles = account.Claims
-                .Where(c => c.Type == ClaimTypes.Role || c.Type.EndsWith("role"))
-                .Select(c => c.Value)
-                .ToList();
-            return new CurrentUser
-            {
-                AccountId = sub,
-                Email = email,
-                Roles = roles,
-            };
-            }
-        
-            catch (System.Exception)
-            {
-                
-                throw;
-            }
-        }
         [Authorize(Roles = RolesName.Customer)]
         [HttpGet("current-user")]
         public IActionResult GetCurrentUser()
@@ -93,7 +59,7 @@ namespace SneakerAPI.Api.Controllers.UserControllers
             return Ok(CurrentUser());
         }          
     
-            [HttpPost("refresh")]
+    [HttpGet("new-token")]
     public async Task<IActionResult> RefreshToken([FromBody] TokenResponse model)
     {   
         try
@@ -122,10 +88,10 @@ namespace SneakerAPI.Api.Controllers.UserControllers
     private bool AutoCreateInfo(int account_id){
         return _uow.CustomerInfo.Add(new CustomerInfo{
                             CustomerInfo__AccountId=account_id,
-                            CustomerInfo__Avatar="default.jpg"
+                            CustomerInfo__Avatar=HandleString.DefaultImage
                         });
     }
-        [HttpPost("set-password")]
+        [HttpPatch("password-set")]
         public async Task<IActionResult> SetPassword(ChangePasswordDto model)
         {
             try
@@ -158,7 +124,7 @@ namespace SneakerAPI.Api.Controllers.UserControllers
                 throw new Exception("An error has occurred while resetting password");
             }
         }
-        [HttpPost("signin-google")]
+        [HttpPost("google-signin")]
         public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequest request)
         {
             try
@@ -228,7 +194,7 @@ namespace SneakerAPI.Api.Controllers.UserControllers
             {   
                 var roles=await _accountManager.GetRolesAsync(accountExist);
                 if(roles.Contains(RolesName.Customer))
-                    return BadRequest("Email already exists. You are granted access as a customer");
+                    return Ok("Email already exists. You are granted access as a customer");
 
                 if(!roles.Contains(RolesName.Customer)){
                     var rs=await _accountManager.AddToRoleAsync(accountExist,RolesName.Customer);
@@ -264,8 +230,8 @@ namespace SneakerAPI.Api.Controllers.UserControllers
                 // Gửi OTP qua email
                 await _emailSender.SendEmailAsync(model.Email, "Confirm email",
                     EmailTemplateHtml.RenderEmailRegisterBody(model.Email, otpCode));
-
-                return Ok(new {result=true, msg="Register successfully. Please check your email for verification code."});
+                var uri=new Uri($"{Request.Scheme}://{Request.Host}/Customer/Account/register/{account.Email}");
+                return Created(uri, new { message = "User registered successfully",email=account.Email});
             }
             return BadRequest(result.Errors);
              }
@@ -275,16 +241,16 @@ namespace SneakerAPI.Api.Controllers.UserControllers
                 throw new Exception("An error has occurred while registering");
             }
         }
-        [HttpPost("resend-email-confirmation/{email}")]
-        public async Task<IActionResult> ResendEmailConfirmation(string email)
+        [HttpGet("email-confirmation-resend")]
+        public async Task<IActionResult> ResendEmailConfirmation(ResendOTPDto model)
         {   
             try
             {
            
-            var account = await _accountManager.FindByEmailAsync(email);
+            var account = await _accountManager.FindByEmailAsync(model.Email);
             if (account == null )
             {
-                return BadRequest("Email does not exist.");
+                return BadRequest("Please check your email for verification code.");
             }
 
             if (await _accountManager.IsEmailConfirmedAsync(account))
@@ -292,15 +258,15 @@ namespace SneakerAPI.Api.Controllers.UserControllers
                 return BadRequest("Your email has been previously verified.");
             }
 
-            if (!_cache.TryGetValue(email, out string storedOtp))
+            if (!_cache.TryGetValue(model.Email, out string storedOtp))
             {   
                 // Sinh OTP và lưu vào MemoryCache (hết hạn sau 5 phút)
                 var otpCode = HandleString.GenerateVerifyCode();
-                _cache.Set(email, otpCode, TimeSpan.FromMinutes(5));
+                _cache.Set(model.Email, otpCode, TimeSpan.FromMinutes(5));
 
                 // Gửi OTP qua email
-                await _emailSender.SendEmailAsync(email, "Confirm email",
-                EmailTemplateHtml.RenderEmailRegisterBody(email, otpCode));
+                await _emailSender.SendEmailAsync(model.Email, "Confirm email",
+                EmailTemplateHtml.RenderEmailRegisterBody(model.Email, otpCode));
                 return Ok("Please check your email for verification code.");
             }
 
@@ -314,7 +280,7 @@ namespace SneakerAPI.Api.Controllers.UserControllers
                 throw new Exception("An error has occurred while resending email confirmation");
             }
         }
-        [HttpPost("confirm-email")]
+        [HttpPatch("email-confirm")]
         public async Task<IActionResult> ConfirmEmail(ConfirmEmailDto model)
         {   
             try
@@ -372,10 +338,10 @@ namespace SneakerAPI.Api.Controllers.UserControllers
           
             var roles=await _accountManager.GetRolesAsync(account);
             if(!roles[0].Contains(RolesName.Customer))
-                return BadRequest("User does not have access");
+                return Unauthorized("User does not have access");
 
             if (!await _accountManager.IsEmailConfirmedAsync(account))
-                return BadRequest("Please confirm email before logging in.");
+                return Unauthorized("Please confirm email before logging in.");
 
             var result = await _signInManager.PasswordSignInAsync(account, model.Password, false, false);
             if (result.Succeeded)
@@ -393,7 +359,7 @@ namespace SneakerAPI.Api.Controllers.UserControllers
             }
         }
 
-        [HttpPost("forgot-password")]
+        [HttpPatch("password-forgot")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto model)
         {
             try
@@ -427,12 +393,15 @@ namespace SneakerAPI.Api.Controllers.UserControllers
         }
 
         // Đặt lại mật khẩu
-        [HttpPost("change-password")]
-        public async Task<IActionResult> ResetPassword(ChangePasswordDto model)
+        [HttpPatch("password-change")]
+        public async Task<IActionResult> ChangePassword(ChangePasswordDto model)
         {
             try
             {
-            var currentAccount= (CurrentUser)CurrentUser();;
+            var currentAccount= (CurrentUser)CurrentUser();
+            if(currentAccount == null){
+                return Unauthorized();
+            }
             if(model.ConfirmNewPassword != model.NewPassword)
                 return BadRequest("Your new password and confirm password do not match.");
 

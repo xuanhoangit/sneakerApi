@@ -227,6 +227,32 @@ namespace SneakerAPI.AdminApi.Migrations
                     b.ToTable("Accounts", (string)null);
                 });
 
+            modelBuilder.Entity("SneakerAPI.Core.Models.OrderEntities.CartItem", b =>
+                {
+                    b.Property<int>("CartItem__Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CartItem__Id"));
+
+                    b.Property<int>("CartItem__CreatedByAccountId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CartItem__ProductColorSizeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CartItem__Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("CartItem__Id");
+
+                    b.HasIndex("CartItem__CreatedByAccountId");
+
+                    b.HasIndex("CartItem__ProductColorSizeId");
+
+                    b.ToTable("CartItems");
+                });
+
             modelBuilder.Entity("SneakerAPI.Core.Models.OrderEntities.Order", b =>
                 {
                     b.Property<int>("Order__Id")
@@ -235,7 +261,7 @@ namespace SneakerAPI.AdminApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Order__Id"));
 
-                    b.Property<decimal>("Order__Amount")
+                    b.Property<decimal>("Order__AmountDue")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Order__CreatedByAccountId")
@@ -244,50 +270,52 @@ namespace SneakerAPI.AdminApi.Migrations
                     b.Property<DateTime>("Order__CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<long>("Order__PaymentCode")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Order__PaymentMethod")
+                        .HasColumnType("int");
+
                     b.Property<int>("Order__Status")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("Order__Total")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<string>("Order__Type")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Order__Id");
 
                     b.HasIndex("Order__CreatedByAccountId");
 
+                    b.HasIndex("Order__PaymentCode")
+                        .IsUnique();
+
                     b.ToTable("Orders");
                 });
 
-            modelBuilder.Entity("SneakerAPI.Core.Models.OrderEntities.OrderDetail", b =>
+            modelBuilder.Entity("SneakerAPI.Core.Models.OrderEntities.OrderItem", b =>
                 {
-                    b.Property<int>("OrderDetail__Id")
+                    b.Property<int>("OrderItem__Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderDetail__Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderItem__Id"));
 
-                    b.Property<int>("OrderDetail__OrderId")
+                    b.Property<int>("OrderItem__OrderId")
                         .HasColumnType("int");
 
-                    b.Property<int>("OrderDetail__ProductColorSizeId")
+                    b.Property<int>("OrderItem__ProductColorSizeId")
                         .HasColumnType("int");
 
-                    b.Property<int>("OrderDetail__Quantity")
+                    b.Property<int>("OrderItem__Quantity")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("OrderDetail__TotalAmount")
-                        .HasColumnType("decimal(18,2)");
+                    b.HasKey("OrderItem__Id");
 
-                    b.Property<decimal>("OrderDetail__UnitPrice")
-                        .HasColumnType("decimal(18,2)");
+                    b.HasIndex("OrderItem__OrderId");
 
-                    b.Property<int?>("Order__Id")
-                        .HasColumnType("int");
+                    b.HasIndex("OrderItem__ProductColorSizeId");
 
-                    b.HasKey("OrderDetail__Id");
-
-                    b.HasIndex("Order__Id");
-
-                    b.ToTable("OrderDetails");
+                    b.ToTable("OrderItems");
                 });
 
             modelBuilder.Entity("SneakerAPI.Core.Models.ProductEntities.Brand", b =>
@@ -297,9 +325,6 @@ namespace SneakerAPI.AdminApi.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Brand__Id"));
-
-                    b.Property<int>("Brand__CreatedByAccountId")
-                        .HasColumnType("int");
 
                     b.Property<string>("Brand__Description")
                         .IsRequired()
@@ -564,7 +589,7 @@ namespace SneakerAPI.AdminApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Address__Id"));
 
-                    b.Property<int?>("Address__CustomerInfo")
+                    b.Property<int>("Address__CustomerInfo")
                         .HasColumnType("int");
 
                     b.Property<string>("Address__FullAddress")
@@ -594,7 +619,7 @@ namespace SneakerAPI.AdminApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CustomerInfo__Id"));
 
-                    b.Property<int?>("CustomerInfo__AccountId")
+                    b.Property<int>("CustomerInfo__AccountId")
                         .HasColumnType("int");
 
                     b.Property<string>("CustomerInfo__Avatar")
@@ -617,7 +642,8 @@ namespace SneakerAPI.AdminApi.Migrations
 
                     b.HasKey("CustomerInfo__Id");
 
-                    b.HasIndex("CustomerInfo__AccountId");
+                    b.HasIndex("CustomerInfo__AccountId")
+                        .IsUnique();
 
                     b.ToTable("CustomerInfos");
                 });
@@ -630,7 +656,7 @@ namespace SneakerAPI.AdminApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StaffInfo__Id"));
 
-                    b.Property<int?>("StaffInfo__AccountId")
+                    b.Property<int>("StaffInfo__AccountId")
                         .HasColumnType("int");
 
                     b.Property<string>("StaffInfo__Avatar")
@@ -647,7 +673,8 @@ namespace SneakerAPI.AdminApi.Migrations
 
                     b.HasKey("StaffInfo__Id");
 
-                    b.HasIndex("StaffInfo__AccountId");
+                    b.HasIndex("StaffInfo__AccountId")
+                        .IsUnique();
 
                     b.ToTable("StaffInfos");
                 });
@@ -703,6 +730,25 @@ namespace SneakerAPI.AdminApi.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("SneakerAPI.Core.Models.OrderEntities.CartItem", b =>
+                {
+                    b.HasOne("SneakerAPI.Core.Models.IdentityAccount", "Account")
+                        .WithMany()
+                        .HasForeignKey("CartItem__CreatedByAccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SneakerAPI.Core.Models.ProductEntities.ProductColorSize", "ProductColorSize")
+                        .WithMany()
+                        .HasForeignKey("CartItem__ProductColorSizeId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+
+                    b.Navigation("ProductColorSize");
+                });
+
             modelBuilder.Entity("SneakerAPI.Core.Models.OrderEntities.Order", b =>
                 {
                     b.HasOne("SneakerAPI.Core.Models.IdentityAccount", "Account")
@@ -714,13 +760,23 @@ namespace SneakerAPI.AdminApi.Migrations
                     b.Navigation("Account");
                 });
 
-            modelBuilder.Entity("SneakerAPI.Core.Models.OrderEntities.OrderDetail", b =>
+            modelBuilder.Entity("SneakerAPI.Core.Models.OrderEntities.OrderItem", b =>
                 {
                     b.HasOne("SneakerAPI.Core.Models.OrderEntities.Order", "Order")
+                        .WithMany("OrderItems")
+                        .HasForeignKey("OrderItem__OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SneakerAPI.Core.Models.ProductEntities.ProductColorSize", "ProductColorSize")
                         .WithMany()
-                        .HasForeignKey("Order__Id");
+                        .HasForeignKey("OrderItem__ProductColorSizeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Order");
+
+                    b.Navigation("ProductColorSize");
                 });
 
             modelBuilder.Entity("SneakerAPI.Core.Models.ProductEntities.Product", b =>
@@ -794,7 +850,7 @@ namespace SneakerAPI.AdminApi.Migrations
                     b.HasOne("SneakerAPI.Core.Models.ProductEntities.ProductColor", "ProductColor")
                         .WithMany()
                         .HasForeignKey("ProductColorSize__ProductColorId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("SneakerAPI.Core.Models.ProductEntities.Size", "Size")
@@ -827,7 +883,9 @@ namespace SneakerAPI.AdminApi.Migrations
                 {
                     b.HasOne("SneakerAPI.Core.Models.UserEntities.CustomerInfo", "CustomerInfo")
                         .WithMany()
-                        .HasForeignKey("Address__CustomerInfo");
+                        .HasForeignKey("Address__CustomerInfo")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("CustomerInfo");
                 });
@@ -836,7 +894,9 @@ namespace SneakerAPI.AdminApi.Migrations
                 {
                     b.HasOne("SneakerAPI.Core.Models.IdentityAccount", "Account")
                         .WithMany()
-                        .HasForeignKey("CustomerInfo__AccountId");
+                        .HasForeignKey("CustomerInfo__AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Account");
                 });
@@ -845,9 +905,16 @@ namespace SneakerAPI.AdminApi.Migrations
                 {
                     b.HasOne("SneakerAPI.Core.Models.IdentityAccount", "Account")
                         .WithMany()
-                        .HasForeignKey("StaffInfo__AccountId");
+                        .HasForeignKey("StaffInfo__AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Account");
+                });
+
+            modelBuilder.Entity("SneakerAPI.Core.Models.OrderEntities.Order", b =>
+                {
+                    b.Navigation("OrderItems");
                 });
 
             modelBuilder.Entity("SneakerAPI.Core.Models.ProductEntities.Product", b =>

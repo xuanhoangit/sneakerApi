@@ -3,77 +3,99 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SneakerAPI.Core.DTOs;
 using SneakerAPI.Core.Interfaces;
+using SneakerAPI.Core.Libraries;
 using SneakerAPI.Core.Models.UserEntities;
 
 namespace SneakerAPI.Api.Controllers.UserControllers
-{   
-    [Area("Client")]
-    [Route("[Area]/api/[controller]")]
+{
+    [Route("api/users")]
     [ApiController]
     [Authorize(Roles = RolesName.Customer)]
-    public class UserInfomationController : BaseController
+    public class UserInformationController : BaseController
     {
         private readonly IUnitOfWork _uow;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        
-        // private int _userId;
-        
-        public UserInfomationController(IUnitOfWork uow, IHttpContextAccessor httpContextAccessor) : base(uow)
+        private readonly string _uploadFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/avatars");
+
+        public UserInformationController(IUnitOfWork uow) : base(uow)
         {
             _uow = uow;
-            _httpContextAccessor = httpContextAccessor;
-        }
-
-        private int GetUserId()
-        {
-            var user = _httpContextAccessor.HttpContext?.User;
-            return int.Parse(user?.FindFirstValue(ClaimTypes.NameIdentifier));
         }
 
         [HttpGet("profile")]
-        
-        public IActionResult GetCustomerInfomation()
+        public IActionResult GetCustomerInformation()
         {
             try
             {
-                var customer = _uow.CustomerInfo.Get(GetUserId());
-                if(customer == null)
-                {
-                    return NotFound("User profile not found");
-                }
+                var currentAccount = CurrentUser() as CurrentUser;
+                if (currentAccount == null)
+                    return Unauthorized("User not authenticated.");
+
+                var customer = _uow.CustomerInfo.Get(currentAccount.AccountId);
+                if (customer == null)
+                    return NotFound("User profile not found.");
+
                 return Ok(customer);
             }
-            catch (System.Exception)
+            catch (Exception ex)
             {
-                
-                throw new Exception("An error occurred while getting user profile");
+                return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
-        [HttpPatch("profile-update")]
-        
-        public IActionResult UpdateCustomerInfomation(CustomerInfo customerInfo)
-        {
-           try
-           {
-                var _customerInfo = _uow.CustomerInfo.Get(GetUserId());
-                if(_customerInfo == null)
-                {
-                    return NotFound("User profile not found");
-                }
-                _customerInfo.CustomerInfo__FirstName = customerInfo.CustomerInfo__FirstName;
-                _customerInfo.CustomerInfo__LastName = customerInfo.CustomerInfo__LastName;
-                _customerInfo.CustomerInfo__SpendingPoint = customerInfo.CustomerInfo__SpendingPoint;
-                _customerInfo.CustomerInfo__TotalSpent = customerInfo.CustomerInfo__TotalSpent;
-                _uow.CustomerInfo.Update(_customerInfo);
-                _uow.Save();
-                return Ok(_customerInfo);
-           }
-           catch (System.Exception)
-           {
-            
-            throw new Exception("An error occurred while updating user profile");
-           }
-        }
 
+        [HttpPatch("profile")]
+        public async Task<IActionResult> UpdateCustomerInformation([FromForm] CustomerInfoDTO customerInfoDTO)
+        {
+            try
+            {
+                var currentAccount = CurrentUser() as CurrentUser;
+                if (currentAccount == null)
+                    return Unauthorized("User not authenticated.");
+
+                var customerInfo = _uow.CustomerInfo.Get(currentAccount.AccountId);
+                if (customerInfo == null)
+                    return NotFound("User profile not found.");
+
+                // Cập nhật thông tin cơ bản
+                if (!string.IsNullOrEmpty(customerInfoDTO.CustomerInfo__FirstName))
+                    customerInfo.CustomerInfo__FirstName = customerInfoDTO.CustomerInfo__FirstName;
+
+                if (!string.IsNullOrEmpty(customerInfoDTO.CustomerInfo__LastName))
+                    customerInfo.CustomerInfo__LastName = customerInfoDTO.CustomerInfo__LastName;
+
+                // Không cho phép cập nhật SpendingPoint và TotalSpent
+                // Những giá trị này phải do hệ thống quản lý.
+
+                // Xử lý upload avatar nếu có file mới
+                if (customerInfoDTO.File != null)
+                {
+                    var newAvatarFileName = $"{Guid.NewGuid()}.jpg";
+                    var filePath = Path.Combine(_uploadFilePath, newAvatarFileName);
+
+                    var isSuccess = await HandleFile.Upload(customerInfoDTO.File, filePath);
+                    if (!isSuccess)
+                        return BadRequest("Failed to upload avatar.");
+
+                    // Xóa avatar cũ (nếu cần)
+                    if (!string.IsNullOrEmpty(customerInfo.CustomerInfo__Avatar))
+                    {
+                        var oldFilePath = Path.Combine(_uploadFilePath, customerInfo.CustomerInfo__Avatar);
+                        if (System.IO.File.Exists(oldFilePath))
+                            System.IO.File.Delete(oldFilePath);
+                    }
+
+                    customerInfo.CustomerInfo__Avatar = newAvatarFileName;
+                }
+
+                var result = _uow.CustomerInfo.Update(customerInfo);
+                if (!result)
+                    return BadRequest("Failed to update user profile.");
+
+                return Ok(new { Message = "Profile updated successfully.", Data = customerInfo });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
     }
 }

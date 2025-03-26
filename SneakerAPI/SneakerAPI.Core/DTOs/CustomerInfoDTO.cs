@@ -1,5 +1,7 @@
 
 
+using Microsoft.AspNetCore.Http;
+
 namespace SneakerAPI.Core.DTOs
 {
     public class CustomerInfoDTO
@@ -11,6 +13,7 @@ namespace SneakerAPI.Core.DTOs
         public string? CustomerInfo__Avatar { get; set; }
         public decimal CustomerInfo__TotalSpent { get; set; }
         public decimal CustomerInfo__SpendingPoint { get; set; }
-        public int? CustomerInfo__AccountId { get; set; }
+        public int CustomerInfo__AccountId { get; set; }
+        public IFormFile? File {get;set;}
     }
 }

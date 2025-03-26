@@ -7,6 +7,7 @@ using SneakerAPI.Infrastructure.Data;
 using SneakerAPI.Infrastructure.Repositories.OrderRepositories;
 using SneakerAPI.Infrastructure.Repositories.ProductRepositories;
 using SneakerAPI.Infrastructure.Repositories.UserRepositories;
+using VNPAY.NET;
 
 namespace SneakerAPI.Infrastructure.Repositories;
 public class UnitOfWork : IUnitOfWork
@@ -17,8 +18,9 @@ public class UnitOfWork : IUnitOfWork
     {
         _db=db;
         //Order
+        CartItem = new CartItemRepository(_db);
         Order = new OrderRepository(_db);
-        OrderDetail = new OrderDetailRepository(_db);
+        OrderItem = new OrderItemRepository(_db);
         //Product
         ProductColorFile = new ProductColorFileRepository(_db);
         Product = new ProductRepository(_db);
@@ -35,10 +37,13 @@ public class UnitOfWork : IUnitOfWork
         CustomerInfo = new CustomerInfoRepository(_db);
         StaffInfo = new StaffInfoRepository(_db);
         Address = new AddressRepository(_db);
+
+        Vnpay= new Vnpay();
     }
+    public ICartItemRepository CartItem {get;}
     public IOrderRepository Order {get;}
 
-    public IOrderDetailRepository OrderDetail {get;}
+    public IOrderItemRepository OrderItem {get;}
 
     public IProductColorFileRepository ProductColorFile {get;}
     public IProductRepository Product {get;}
@@ -69,6 +74,11 @@ public class UnitOfWork : IUnitOfWork
     public IStaffInfoRepository StaffInfo {get;}
 
     public IAddressRepository Address {get;}
+
+    public IVnpay Vnpay {get;}
+
+
+
 
 
 

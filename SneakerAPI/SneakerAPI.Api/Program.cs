@@ -12,6 +12,7 @@ using SneakerAPI.Core.Models;
 using SneakerAPI.Core.DTOs;
 using SneakerAPI.Core.Interfaces.UserInterfaces;
 using SneakerAPI.Infrastructure.Repositories.UserRepositories;
+using VNPAY.NET;
 
 var  AllowHostSpecifiOrigins = "_allowHostSpecifiOrigins";
 var builder = WebApplication.CreateBuilder(args);
@@ -19,14 +20,13 @@ Env.Load();
 builder.Configuration
     .AddEnvironmentVariables()
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-// var config=builder.Configuration;
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: AllowHostSpecifiOrigins,
                       policy  =>
                       {
-                            policy.WithOrigins("http://127.0.0.1:5500")
-                            .AllowAnyHeader()
+                            // policy.WithOrigins("http://127.0.0.1:5500")
+                            policy.AllowAnyHeader()
                             .AllowAnyMethod()
                             .AllowCredentials(); // Only if using cookies/auth headers
                       });
@@ -38,7 +38,7 @@ builder.Services.AddDbContext<SneakerAPIDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SneakerAPIConnection"),b=>b.MigrationsAssembly("SneakerAPI.AdminApi")));
 
 
-
+builder.Services.AddScoped<IVnpay, Vnpay>();
 builder.Services.AddTransient<IUnitOfWork,UnitOfWork>();
 builder.Services.AddTransient<IEmailSender,EmailSender>();
 builder.Services.AddTransient<IJwtService,JwtService>();
@@ -56,13 +56,19 @@ builder.Services.AddAuthentication()
         options.ClientSecret = config["Authentication:Google:ClientSecret"];
         options.CallbackPath="/signin-google";
     });
+//SetConfigEmailSettings
 config["ConnectionStrings:SneakerAPIConnection"]=Environment.GetEnvironmentVariable("ConnectionString");
-config["EmailSettings:SmtpServer"]=Environment.GetEnvironmentVariable("ES__SmtpServer");
-config["EmailSettings:SmtpPort"]=Environment.GetEnvironmentVariable("ES__SmtpPort");
-config["EmailSettings:SmtpUser"]=Environment.GetEnvironmentVariable("ES__SmtpUser");
-config["EmailSettings:SmtpPass"]=Environment.GetEnvironmentVariable("ES__SmtpPass");
-
-builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+config["EmailSettings:SmtpServer"]=Environment.GetEnvironmentVariable("SmtpServer");
+config["EmailSettings:SmtpPort"]=Environment.GetEnvironmentVariable("SmtpPort");
+config["EmailSettings:SmtpUser"]=Environment.GetEnvironmentVariable("SmtpUser");
+config["EmailSettings:SmtpPass"]=Environment.GetEnvironmentVariable("SmtpPass");
+//SetConfigVNPAY
+config["Vnpay:TmnCode"]=Environment.GetEnvironmentVariable("TmnCode");
+config["Vnpay:HashSecret"]=Environment.GetEnvironmentVariable("HashSecret");
+config["Vnpay:BaseUrl"]=Environment.GetEnvironmentVariable("BaseUrl");
+config["Vnpay:ReturnUrl"]=Environment.GetEnvironmentVariable("ReturnUrl");
+//SetDataEmailSettingModel
+builder.Services.Configure<EmailSettings>(config.GetSection("EmailSettings"));
 
 builder.Services.AddAuthentication()
 .AddJwtBearer(options =>
@@ -81,6 +87,8 @@ builder.Services.AddAuthentication()
     };
 });
 //End Cònig
+// Đăng ký AutoMapper
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddMemoryCache(); // Thêm dịch vụ MemoryCache
 builder.Services.AddSession(); // Thêm dịch vụ Session

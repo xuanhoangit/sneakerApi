@@ -51,10 +51,36 @@ protected override void OnModelCreating(ModelBuilder builder)
             entity.ToTable("AccountTokens");
             entity.Property(x=>x.UserId).HasColumnName("AccountId");
         });
+
+
+        ////////////
+        builder.Entity<CustomerInfo>()
+        .HasIndex(e => e.CustomerInfo__AccountId)
+        .IsUnique();
+        builder.Entity<StaffInfo>()
+        .HasIndex(e => e.StaffInfo__AccountId)
+        .IsUnique();
+        builder.Entity<Order>()
+        .HasIndex(e=>e.Order__PaymentCode)
+        .IsUnique();
+        /////
+        builder.Entity<CartItem>()
+            .HasOne(ci => ci.ProductColorSize)
+            .WithMany()
+            .HasForeignKey(ci => ci.CartItem__ProductColorSizeId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        builder.Entity<ProductColorSize>()
+            .HasOne(pcs => pcs.ProductColor)
+            .WithMany()
+            .HasForeignKey(pcs => pcs.ProductColorSize__ProductColorId)
+            .OnDelete(DeleteBehavior.NoAction);
     }
+    
         //ORDERENTITIES
+        public DbSet<CartItem>? CartItems {get;set;}
         public DbSet<Order>? Orders {get;set;}
-        public DbSet<OrderDetail>? OrderDetails {get;set;}
+        public DbSet<OrderItem>? OrderItems {get;set;}
         //PRODUCTENTITIES
         public DbSet<ProductColorFile> Files {get;set;}
         public DbSet<Product>? Products {get;set;}

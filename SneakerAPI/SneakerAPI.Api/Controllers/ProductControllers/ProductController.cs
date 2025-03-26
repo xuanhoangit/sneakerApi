@@ -1,60 +1,115 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-// using SneakerAPI.Core.DTOs;
 using SneakerAPI.Core.Interfaces;
 using SneakerAPI.Core.Models.Filters;
 using SneakerAPI.Core.Models.ProductEntities;
-
+using System;
+using System.Linq;
 
 namespace SneakerAPI.Api.Controllers
 {   
     [ApiController]
-    [Route("api/[Controller]")]
-    // [Authorize]
-    // [Area("customer")]
+    [Route("api/products")]
     public class ProductController : BaseController
     {
-        private readonly IUnitOfWork uow;
+        private readonly IUnitOfWork _uow;
+        private readonly int PageSize = 20;
+
         public ProductController(IUnitOfWork uow) : base(uow)
         {
-            this.uow = uow;
-        }
-        [HttpGet("get/{id}")]
-        public IActionResult GetById(int id){
-            return Ok(uow.Product.Get(id));
-        }
-        [HttpGet("searchproduct/{name}")] 
-        public async Task<IActionResult> SearchProductByName(string name){
-            //validate
-            
-            //
-            return Ok(await uow.Product.GetAllAsync(p=>p.Product__Name.Contains(name)));
+            _uow = uow;
         }
 
-        [HttpPost("create")]
-        public IActionResult Create(Product product){
-            //validate
+        [HttpGet("status/{status}/page/{page:int?}")]
+        public IActionResult GetProductsByStatus(int status, int page = 1)
+        {
+            try
+            {
+                var products = _uow.Product
+                    .GetAll(x => x.Product__Status == status)
+                    .Skip((page - 1) * PageSize)
+                    .Take(PageSize)
+                    .ToList();
 
-            //
-            var result=uow.Product.Add(product);
-            return Ok(new {isSuccess=result,message="Thêm sản phẩm thành công"});
+                if (!products.Any())
+                    return NotFound("No products found with the given status.");
+
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
         }
-        [HttpPut("update")]
-        public IActionResult Update(Product product){
-            //validate
-           
-            //
-            var result=uow.Product.Update(product);
-            return Ok(new {isSuccess=result,message="Cập nhật sản phẩm thành công"});
+
+        [HttpGet("{id}")]
+        public IActionResult GetProduct(int id)
+        {
+            try
+            {
+                var product = _uow.Product.Get(id);
+                if (product == null)
+                    return NotFound("Product not found.");
+
+                return Ok(product);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
         }
-        [HttpPatch("delete/{id}")]
-        public IActionResult Delete(int id){
-            //validate
-           
-            //
-            var product=uow.Product.Get(id);
-            var result=uow.Product.Update(product);
-            return Ok(new {isSuccess=result,message="Xóa sản phẩm thành công"});
+
+        [HttpGet("filter")]
+        public IActionResult GetProductsByFilter([FromQuery] ProductFilter filter, int page = 1)
+        {
+            try
+            {
+                var products = _uow.Product
+                    .GetFilteredProducts(filter)
+                    .Skip((page - 1) * PageSize)
+                    .Take(PageSize)
+                    .ToList();
+
+                if (!products.Any())
+                    return NotFound("No products found with the given filters.");
+
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+
+        [HttpGet("category/{categoryId}/page/{page:int?}")]
+        public IActionResult GetProductsByCategory(int categoryId, int page = 1)
+        {
+            try
+            {
+                var category = _uow.Category.Get(categoryId);
+                if (category == null)
+                    return NotFound("Category does not exist.");
+
+                var productIds = _uow.ProductCategory
+                    .GetAll(x => x.ProductCategory__CategoryId == categoryId)
+                    .Select(x => x.ProductCategory__ProductId)
+                    .ToList();
+
+                if (!productIds.Any())
+                    return NotFound("No products found for this category.");
+
+                var products = _uow.Product
+                    .GetAll(x => productIds.Contains(x.Product__Id))
+                    .Skip((page - 1) * PageSize)
+                    .Take(PageSize)
+                    .ToList();
+
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
         }
     }
 }

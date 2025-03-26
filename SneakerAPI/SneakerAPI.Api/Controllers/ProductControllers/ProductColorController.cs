@@ -5,7 +5,6 @@ using SneakerAPI.Core.Interfaces;
 namespace SneakerAPI.Api.Controllers.ProductControllers
 {   
     [Authorize]
-    [Area("customer")]
     public class ProductColorController : BaseController
     {
         private readonly IUnitOfWork uow;

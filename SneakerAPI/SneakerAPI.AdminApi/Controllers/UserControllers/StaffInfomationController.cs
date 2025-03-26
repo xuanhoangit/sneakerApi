@@ -13,7 +13,7 @@ namespace SneakerAPI.Api.Controllers.UserControllers
     [Area("Dashboard")]
     [Route("[Area]/[controller]")]
     [ApiController]
-    // [Authorize(Roles = RolesName.Staff)]
+    [Authorize(Roles = RolesName.Staff)]
     public class StaffInfomationController : BaseController
     {
         private readonly IUnitOfWork _uow;
@@ -48,7 +48,8 @@ namespace SneakerAPI.Api.Controllers.UserControllers
         public async Task<IActionResult> UpdateStaffInfomation(StaffInfoDTO staffInfoDTO)
         {
            try
-           {    if(staffInfoDTO==null){
+           {    
+                if(staffInfoDTO==null){
                     return BadRequest("Invalid staff information provided");
                  }
                 var _staffInfo = _uow.StaffInfo.FirstOrDefault(x=>x.StaffInfo__AccountId==staffInfoDTO.StaffInfo__Id);

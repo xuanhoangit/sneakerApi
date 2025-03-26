@@ -13,6 +13,7 @@ using SneakerAPI.Core.Models;
 using SneakerAPI.Core.DTOs;
 using SneakerAPI.Core.Interfaces.UserInterfaces;
 using SneakerAPI.Infrastructure.Repositories.UserRepositories;
+using VNPAY.NET;
 
 var  AllowHostSpecifiOrigins = "_allowHostSpecifiOrigins";
 var builder = WebApplication.CreateBuilder(args);
@@ -38,7 +39,7 @@ builder.Services.AddDbContext<SneakerAPIDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SneakerAPIConnection"),b=>b.MigrationsAssembly("SneakerAPI.AdminApi")));
 
 
-
+builder.Services.AddScoped<IVnpay,Vnpay>();
 builder.Services.AddTransient<IUnitOfWork,UnitOfWork>();
 builder.Services.AddTransient<IEmailSender,EmailSender>();
 builder.Services.AddTransient<IJwtService,JwtService>();
@@ -48,11 +49,15 @@ builder.Services.AddIdentity<IdentityAccount, IdentityRole<int>>()
 //*************** Tất cả config**
 var config=builder.Configuration;
 config["ConnectionStrings:SneakerAPIConnection"]=Environment.GetEnvironmentVariable("ConnectionString");
-config["EmailSettings:SmtpServer"]=Environment.GetEnvironmentVariable("ES__SmtpServer");
-config["EmailSettings:SmtpPort"]=Environment.GetEnvironmentVariable("ES__SmtpPort");
-config["EmailSettings:SmtpUser"]=Environment.GetEnvironmentVariable("ES__SmtpUser");
-config["EmailSettings:SmtpPass"]=Environment.GetEnvironmentVariable("ES__SmtpPass");
-
+config["EmailSettings:SmtpServer"]=Environment.GetEnvironmentVariable("SmtpServer");
+config["EmailSettings:SmtpPort"]=Environment.GetEnvironmentVariable("SmtpPort");
+config["EmailSettings:SmtpUser"]=Environment.GetEnvironmentVariable("SmtpUser");
+config["EmailSettings:SmtpPass"]=Environment.GetEnvironmentVariable("SmtpPass");
+//SetConfigVNPAY
+config["Vnpay:TmnCode"]=Environment.GetEnvironmentVariable("TmnCode");
+config["Vnpay:HashSecret"]=Environment.GetEnvironmentVariable("HashSecret");
+config["Vnpay:BaseUrl"]=Environment.GetEnvironmentVariable("BaseUrl");
+config["Vnpay:ReturnUrl"]=Environment.GetEnvironmentVariable("ReturnUrl");
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 // Cấu hình Authentication với JWT
 builder.Services.AddAuthentication()
