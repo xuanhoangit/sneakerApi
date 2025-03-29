@@ -27,7 +27,13 @@ namespace SneakerAPI.AdminApi.Controllers.ProductControllers
         public async Task<IActionResult> GetAddresses(int userInformationId)
         {
             try
-            {
+            {   
+                var currentAccount = CurrentUser() as CurrentUser;
+                if (currentAccount == null)
+                    return Unauthorized("User not authenticated.");
+                var _accountId=_uow.CustomerInfo.Get(userInformationId).CustomerInfo__AccountId;
+                if(_accountId!=currentAccount.AccountId)
+                    return Unauthorized();
                 var addresses = await _uow.Address.GetAllAsync(x => x.Address__CustomerInfo == userInformationId);
 
                 if (addresses == null || !addresses.Any())
@@ -48,7 +54,7 @@ namespace SneakerAPI.AdminApi.Controllers.ProductControllers
         public IActionResult GetAddress(int id)
         {
             try
-            {
+            {   
                 var address = _uow.Address.Get(id);
                 if (address == null)
                 {
@@ -63,7 +69,7 @@ namespace SneakerAPI.AdminApi.Controllers.ProductControllers
             }
         }
 
-        [HttpPost("new")]
+        [HttpPost("create")]
         public IActionResult CreateAddress([FromBody] AddressDTO addressDTO)
         {
             try

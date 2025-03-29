@@ -5,24 +5,24 @@
 namespace SneakerAPI.AdminApi.Migrations
 {
     /// <inheritdoc />
-    public partial class modifyInit1 : Migration
+    public partial class _27032025_v1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<int>(
-                name: "ProductColor__Status",
+            migrationBuilder.AddColumn<string>(
+                name: "ProductColor__Name",
                 table: "ProductColors",
-                type: "int",
+                type: "nvarchar(max)",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: "");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "ProductColor__Status",
+                name: "ProductColor__Name",
                 table: "ProductColors");
         }
     }

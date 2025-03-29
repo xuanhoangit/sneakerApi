@@ -14,10 +14,7 @@ namespace SneakerAPI.Core.Models.ProductEntities
         public string? Brand__Description { get; set; }
         [Required]
         public string? Brand__Logo { get; set; }
-        // [Required]
-        // public int Brand__CreatedByAccountId  { get; set; }
-        // [ForeignKey("Brand__CreatedByAccountId")]
-        // public IdentityAccount? IdentityAccount {get;set;}
-        public bool Brand__Status { get; set; }
+        public bool Brand__IsActive { get; set; }
+        public virtual List<Product>? Products {get;set;}
     }
 }

@@ -276,6 +276,9 @@ namespace SneakerAPI.AdminApi.Migrations
                     b.Property<int>("Order__PaymentMethod")
                         .HasColumnType("int");
 
+                    b.Property<int>("Order__PaymentStatus")
+                        .HasColumnType("int");
+
                     b.Property<int>("Order__Status")
                         .HasColumnType("int");
 
@@ -330,6 +333,9 @@ namespace SneakerAPI.AdminApi.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("Brand__IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Brand__Logo")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -337,9 +343,6 @@ namespace SneakerAPI.AdminApi.Migrations
                     b.Property<string>("Brand__Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("Brand__Status")
-                        .HasColumnType("bit");
 
                     b.HasKey("Brand__Id");
 
@@ -353,6 +356,9 @@ namespace SneakerAPI.AdminApi.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Category__Id"));
+
+                    b.Property<string>("Category__Description")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Category__Name")
                         .HasColumnType("nvarchar(max)");
@@ -369,6 +375,10 @@ namespace SneakerAPI.AdminApi.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Color__Id"));
+
+                    b.Property<string>("Color__Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Color__Name")
                         .IsRequired()
@@ -454,6 +464,13 @@ namespace SneakerAPI.AdminApi.Migrations
 
                     b.Property<int>("ProductColor__ColorId")
                         .HasColumnType("int");
+
+                    b.Property<string>("ProductColor__Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProductColor__Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("ProductColor__Price")
                         .HasColumnType("decimal(18,2)");
@@ -782,7 +799,7 @@ namespace SneakerAPI.AdminApi.Migrations
             modelBuilder.Entity("SneakerAPI.Core.Models.ProductEntities.Product", b =>
                 {
                     b.HasOne("SneakerAPI.Core.Models.ProductEntities.Brand", "Brand")
-                        .WithMany()
+                        .WithMany("Products")
                         .HasForeignKey("Product__BrandId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -801,7 +818,7 @@ namespace SneakerAPI.AdminApi.Migrations
             modelBuilder.Entity("SneakerAPI.Core.Models.ProductEntities.ProductCategory", b =>
                 {
                     b.HasOne("SneakerAPI.Core.Models.ProductEntities.Category", "Category")
-                        .WithMany()
+                        .WithMany("ProductCategories")
                         .HasForeignKey("Category__Id");
 
                     b.HasOne("SneakerAPI.Core.Models.ProductEntities.Product", "Product")
@@ -915,6 +932,16 @@ namespace SneakerAPI.AdminApi.Migrations
             modelBuilder.Entity("SneakerAPI.Core.Models.OrderEntities.Order", b =>
                 {
                     b.Navigation("OrderItems");
+                });
+
+            modelBuilder.Entity("SneakerAPI.Core.Models.ProductEntities.Brand", b =>
+                {
+                    b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("SneakerAPI.Core.Models.ProductEntities.Category", b =>
+                {
+                    b.Navigation("ProductCategories");
                 });
 
             modelBuilder.Entity("SneakerAPI.Core.Models.ProductEntities.Product", b =>

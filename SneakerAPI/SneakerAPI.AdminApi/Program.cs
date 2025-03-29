@@ -27,7 +27,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: AllowHostSpecifiOrigins,
                       policy  =>
                       {
-                          policy.WithOrigins("http://127.0.0.1:5500").AllowAnyMethod()
+                          policy.WithOrigins().AllowAnyMethod()
                                                                             .AllowAnyHeader()
                                                                             .AllowCredentials();
                       });
@@ -91,8 +91,15 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     
     try
-    {
-        await SeedRoleAdmin.CreateRoles(services);
+    {   
+        var uow = services.GetRequiredService<IUnitOfWork>();
+        await SeedRoleAdmin.InitializeAccount(services);
+        await SeedRoleAdmin.InitBrand(uow);
+        SeedRoleAdmin.InitColor(uow);
+        SeedRoleAdmin.InitCategory(uow);
+        SeedRoleAdmin.InitProductCategory(uow);
+        SeedRoleAdmin.InitSize(uow);
+        SeedRoleAdmin.InitProductColorSize(uow);
     }
     catch(Exception ex)
     {

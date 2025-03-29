@@ -8,7 +8,7 @@ using SneakerAPI.Core.Models.ProductEntities;
 namespace SneakerAPI.AdminApi.Controllers.ProductControllers
 {   
     [ApiController]
-    [Route("api/[Controller]")]
+    [Route("api/product-colors")]
     
     public class ProductColorController : BaseController
     {
@@ -20,7 +20,7 @@ namespace SneakerAPI.AdminApi.Controllers.ProductControllers
             _uow = uow;
             _mapper = mapper;
         }        
-        [HttpGet("get/{id}")]
+        [HttpGet("{id}")]
         public IActionResult GetById(int id){
             try
             {
@@ -33,7 +33,7 @@ namespace SneakerAPI.AdminApi.Controllers.ProductControllers
                 return BadRequest(e);
             }
         }
-        [HttpGet("get-by-product/{product_id}")]
+        [HttpGet("product/{product_id}")]
         public IActionResult GetByProductId(int product_id){
             try
             {
@@ -49,7 +49,7 @@ namespace SneakerAPI.AdminApi.Controllers.ProductControllers
             }
         }
         [HttpPost("create")]
-        public IActionResult Create ([FromQuery]ProductColorDTO productColorDto){
+        public IActionResult Create ([FromBody]ProductColorDTO productColorDto){
             try
             {
                 if(!ModelState.IsValid){
@@ -68,7 +68,7 @@ namespace SneakerAPI.AdminApi.Controllers.ProductControllers
             }
         }
         [HttpPut("update")]
-        public IActionResult Update (ProductColor productColor){
+        public IActionResult Update ([FromBody]ProductColor productColor){
             try
             {
                 if(!ModelState.IsValid){
@@ -84,7 +84,7 @@ namespace SneakerAPI.AdminApi.Controllers.ProductControllers
             }
         }
         [HttpPatch("publish")]
-        public IActionResult Publish (List<int> pc_ids){
+        public IActionResult Publish ([FromBody]List<int> pc_ids){
            try
            {    
                 if(!pc_ids.Any()|| pc_ids==null)
@@ -111,7 +111,7 @@ namespace SneakerAPI.AdminApi.Controllers.ProductControllers
            }
         }
         [HttpPatch("delete")]
-        public IActionResult Delete (List<int> pc_ids){
+        public IActionResult Delete ([FromBody]List<int> pc_ids){
            try
            {    
                 if(!pc_ids.Any()|| pc_ids==null)

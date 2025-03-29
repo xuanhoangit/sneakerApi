@@ -6,7 +6,7 @@ using SneakerAPI.Core.Models.ProductEntities;
 namespace SneakerAPI.AdminApi.Controllers.ProductControllers
 {       
     [ApiController]
-    [Route("api/[Controller]")]
+    [Route("api/product-images")]
     public class ProductColorFileController : BaseController
     {
         private readonly IUnitOfWork _uow;
@@ -17,9 +17,9 @@ namespace SneakerAPI.AdminApi.Controllers.ProductControllers
         {
             _uow = uow;
         }
-        [HttpGet]
-        public IActionResult GetAll(){
-            return Ok(_uow.ProductColorFile.GetAll());
+        [HttpGet("{product_color_id:int?}")]
+        public IActionResult GetAll(int product_color_id){
+            return Ok(_uow.ProductColorFile.GetAll(x=>x.ProductColorFile__ProductColorId==product_color_id));
         }
         [HttpDelete("delete")]
         public IActionResult Remove(List<int> file_ids){
@@ -39,9 +39,9 @@ namespace SneakerAPI.AdminApi.Controllers.ProductControllers
             }
             return Ok(result);
         }
-        [HttpDelete("delete-product-images/{pc_id}")]
-        public IActionResult RemoveAll(int pc_id){
-            var files=_uow.ProductColorFile.Find(x=>x.ProductColorFile__ProductColorId==pc_id).ToList();
+        [HttpDelete("{product_color_id:int?}")]
+        public IActionResult RemoveAll(int product_color_id){
+            var files=_uow.ProductColorFile.Find(x=>x.ProductColorFile__ProductColorId==product_color_id).ToList();
             var result=_uow.ProductColorFile.RemoveRange(files);
             if(result){
                  // Kiểm tra tệp có tồn tại không

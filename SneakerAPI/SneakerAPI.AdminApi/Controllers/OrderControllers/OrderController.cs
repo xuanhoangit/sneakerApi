@@ -2,9 +2,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SneakerAPI.Core.DTOs;
 using SneakerAPI.Core.Interfaces;
+using SneakerAPI.Core.Models.Filters;
 using SneakerAPI.Core.Models.OrderEntities;
 
-namespace SneakerAPI.Api.Controllers.OrderControllers
+namespace SneakerAPI.AdminApi.Controllers.OrderControllers
 {   
     [ApiController]
     [Route("api/orders")]
@@ -12,20 +13,35 @@ namespace SneakerAPI.Api.Controllers.OrderControllers
     public class OrderController : BaseController
     {
         private readonly IUnitOfWork _uow;
+        private readonly int unitInAPage=20;
 
         public OrderController(IUnitOfWork uow) : base(uow)
         {
             _uow = uow;
         }
-
-        [HttpGet]
-        public IActionResult GetOrders()
+    
+        [HttpGet("page/{page}")]
+        public IActionResult GetOrders(int page=1)
         {
             var currentAccount = CurrentUser() as CurrentUser;
             if (currentAccount == null)
                 return Unauthorized("User not authenticated.");
 
-            var orders = _uow.Order.Find(x => x.Order__CreatedByAccountId == currentAccount.AccountId).ToList();
+            var orders = _uow.Order.GetAll().Skip((page-1)*unitInAPage).Take(unitInAPage);
+
+            if (!orders.Any())
+                return NotFound("No orders found.");
+
+            return Ok(orders);
+        }
+        [HttpGet("filter/page/{page}")]
+        public IActionResult GetOrdersByFilter([FromBody] OrderFilter filter,int page=1)
+        {
+            var currentAccount = CurrentUser() as CurrentUser;
+            if (currentAccount == null)
+                return Unauthorized("User not authenticated.");
+
+            var orders = _uow.Order.GetOrderFiltered(filter).Skip((page-1)*unitInAPage).Take(unitInAPage);
 
             if (!orders.Any())
                 return NotFound("No orders found.");

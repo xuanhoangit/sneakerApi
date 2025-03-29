@@ -6,8 +6,7 @@ using SneakerAPI.Core.Utilities;
 using SneakerAPI.Core.VnpayEnums;
 
 
-[Route("[area]/Vnpay")]
-[Area("Dashboard")]
+[Route("api/Vnpay")]
 public class VnpayPayment : BaseController
 {
 

@@ -9,8 +9,7 @@ using SneakerAPI.Core.Models.ProductEntities;
 namespace SneakerAPI.AdminApi.Controllers.ActionProductControllers
 {   
     [ApiController]
-    [Area("Dashboard")]
-    [Route("[area]/Product")]
+    [Route("api/products")]
     
     public class GetProductDataController :BaseController
     {
@@ -21,7 +20,7 @@ namespace SneakerAPI.AdminApi.Controllers.ActionProductControllers
         {
             _uow = uow;
         }
-        [HttpGet("get-by-status/{status}")]
+        [HttpGet("{status}/page/{page}")]
         public IActionResult GetProductsByStatus(int status,int page=1){
             try
             {
@@ -37,7 +36,7 @@ namespace SneakerAPI.AdminApi.Controllers.ActionProductControllers
                 return BadRequest(e);
             }
         }
-        [HttpGet("get-by-id/{id}")]
+        [HttpGet("{id}")]
         public IActionResult GetProduct(int id){
             try
             {
@@ -71,7 +70,7 @@ namespace SneakerAPI.AdminApi.Controllers.ActionProductControllers
             }
         }
         
-        [HttpGet("category/{category_id}/{page}")]
+        [HttpGet("category/{category_id}/page/{page}")]
         public IActionResult GetProductsByCategory(int category_id,int page=1){
             try
             {
@@ -96,8 +95,7 @@ namespace SneakerAPI.AdminApi.Controllers.ActionProductControllers
     }
 
     [ApiController]
-    [Area("Dashboard")]
-    [Route("[area]/Product")]
+    [Route("api/products")]
     public class ActionProductController : BaseController
     {
         private readonly IUnitOfWork _uow;
@@ -139,7 +137,7 @@ namespace SneakerAPI.AdminApi.Controllers.ActionProductControllers
             }
         }
         [HttpPatch("stop-publishing")]
-        public IActionResult StopPublishing(List<int> ids){
+        public IActionResult StopPublishing([FromBody]List<int> ids){
             try
             {
             if (ids == null || !ids.Any())
@@ -172,7 +170,7 @@ namespace SneakerAPI.AdminApi.Controllers.ActionProductControllers
             }
         }
         [HttpPost("create")]
-        public IActionResult Create([FromQuery]ProductDTO productDto){
+        public IActionResult Create([FromBody]ProductDTO productDto){
             try
             {
                 if(!ModelState.IsValid){
